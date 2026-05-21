@@ -1,0 +1,27 @@
+{
+  "name": "tokenmaxbench",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Framework-neutral benchmarks for token reduction agent setups.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "bench": "tsx src/cli.ts",
+    "bench:github-copilot": "tsx src/cli.ts --provider github-copilot",
+    "bench:codex": "tsx src/cli.ts --provider codex"
+  },
+  "dependencies": {
+    "@github/copilot-sdk": "1.0.0-beta.4",
+    "@openai/codex-sdk": "0.133.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.21",
+    "tsx": "^4.21.0",
+    "typescript": "^5.8.3",
+    "vitest": "^4.1.6"
+  }
+}
