@@ -1,0 +1,16 @@
+targets:
+  - name: grader-openai
+    provider: openai
+    model: gpt-5-mini
+    api_key: ${{ OPENAI_API_KEY }}
+
+  - name: github-copilot
+    provider: copilot-sdk
+    model: gpt-5-mini
+    cwd: .
+    grader_target: grader-openai
+
+  - name: codex
+    provider: codex
+    cwd: .
+    grader_target: grader-openai

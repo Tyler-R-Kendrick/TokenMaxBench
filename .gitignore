@@ -1,5 +1,8 @@
 node_modules/
 dist/
+.agentv/results/
+.agentv/cache.json
+results/
 *.log
 .env
 .env.*

@@ -1,0 +1,52 @@
+name: evals-ghcp-agents-call-completion-ghcp-agent-call-completion
+version: '1.0'
+description: GitHub Copilot agent call completion cases.
+metadata:
+  layered_evaluator_surface: true
+assertions:
+- name: ghcp-agent-quality
+  type: llm-grader
+  target: grader-openai
+  weight: 1.0
+  rubrics:
+  - id: github-context
+    outcome: Response preserves GitHub Copilot/GitHub-specific context required by the prompt.
+    weight: 2
+    required: true
+tests:
+- id: shell-gh-pr-list
+  input:
+  - role: user
+    content: Summarize PR list output without losing titles or branch names.
+  expected_output: "{\n  \"scenario\": \"shell-gh-pr-list\",\n  \"tool_id\": \"shell.gh.pr.list\",\n  \"required_facts\":\
+    \ [\n    {\n      \"kind\": \"literal\",\n      \"value\": \"Add comparative RTK metrics\"\n    },\n    {\n      \"kind\"\
+    : \"literal\",\n      \"value\": \"codex/copilot-hook\"\n    }\n  ],\n  \"rtk_supported\": true,\n  \"rtk_baseline_bytes\"\
+    : 74,\n  \"rtk_baseline_tokens\": 19,\n  \"rtk_notes\": null\n}\n"
+  assertions:
+  - name: ghcp-agent-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/ghcp/agents/call_completion/gradeGhcpAgentCallCompletion.ts
+    weight: 2.0
+- id: synthetic-copilot-tool-output
+  input:
+  - role: user
+    content: Compress Copilot tool output while preserving call id and first symbol file.
+  expected_output: "{\n  \"scenario\": \"synthetic-copilot-tool-output\",\n  \"tool_id\": \"copilot.synthetic-tool\",\n  \"\
+    required_facts\": [\n    {\n      \"kind\": \"jsonPath\",\n      \"path\": \"$.toolCallId\",\n      \"expected\": \"call-123\"\
+    \n    },\n    {\n      \"kind\": \"jsonPath\",\n      \"path\": \"$.output.symbols[0].file\",\n      \"expected\": \"\
+    packages/copilot-hook/src/copilotHook.ts\"\n    }\n  ],\n  \"rtk_supported\": false,\n  \"rtk_baseline_bytes\": 0,\n \
+    \ \"rtk_baseline_tokens\": 105,\n  \"rtk_notes\": \"No direct RTK equivalent; compare UTK compact output against raw-output\
+    \ savings threshold.\"\n}\n"
+  assertions:
+  - name: ghcp-agent-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/ghcp/agents/call_completion/gradeGhcpAgentCallCompletion.ts
+    weight: 2.0

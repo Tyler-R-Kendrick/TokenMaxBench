@@ -1,0 +1,491 @@
+name: evals-tools-call-completion-tools-call-completion
+version: '1.0'
+description: Tool call completion cases for preserving needed tool-output facts.
+metadata:
+  layered_evaluator_surface: true
+assertions:
+- name: tool-call-quality
+  type: llm-grader
+  target: grader-openai
+  weight: 1.0
+  rubrics:
+  - id: call-relevance
+    outcome: Answer keeps the tool result facts needed to complete the user request.
+    weight: 2
+    required: true
+  - id: compactness
+    outcome: Answer omits irrelevant tool noise.
+    weight: 1
+- name: tool-call-budget
+  type: execution-metrics
+  max_tool_calls: 20
+  max_tokens: 8000
+  max_duration_ms: 180000
+  weight: 0.25
+tests:
+- id: tool-output-large-json-gemfilter
+  input:
+  - role: user
+    content: Compress large JSON tool output while retaining route and failed event.
+  expected_output: "{\n  \"scenario\": \"tool-output-large-json-gemfilter\",\n  \"tool_id\": \"compresr.tool.large-json\"\
+    ,\n  \"required_facts\": [\n    {\n      \"kind\": \"jsonPath\",\n      \"path\": \"$.route\",\n      \"expected\": \"\
+    tool-output\"\n    },\n    {\n      \"kind\": \"jsonPath\",\n      \"path\": \"$.events[23].status\",\n      \"expected\"\
+    : \"failed\"\n    }\n  ],\n  \"compresr_baseline_text\": \"Compresr gemfilter keeps query-relevant failed event, route=tool-output,\
+    \ event evt-23 failed, shadow ref for full JSON.\",\n  \"compresr_baseline_tokens\": 30,\n  \"min_fact_score\": 1,\n \
+    \ \"install_config\": {\n    \"pythonPackage\": \"compresr\",\n    \"installedVersion\": \"2.5.1\",\n    \"installCommand\"\
+    : \"python -m pip install --user compresr==2.5.1\",\n    \"apiKeyEnvVar\": \"COMPRESR_API_KEY\",\n    \"liveApiMode\"\
+    : \"disabled-without-api-key\",\n    \"baselineMode\": \"deterministic-installed-sdk-model-baselines\",\n    \"models\"\
+    : [\n      \"espresso_v1\",\n      \"latte_v1\",\n      \"agentic_history_lingua\",\n      \"agentic_tool_output_gemfilter\"\
+    ,\n      \"agentic_tool_output_lingua\",\n      \"agentic_tool_discovery_sat\"\n    ],\n    \"endpoints\": [\n      \"\
+    /api/compress/question-agnostic/\",\n      \"/api/compress/question-specific/\",\n      \"/api/compress/question-agnostic/batch\"\
+    ,\n      \"/api/compress/question-specific/batch\"\n    ]\n  }\n}\n"
+  assertions:
+  - name: tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: query-specific-markdown-latte
+  input:
+  - role: user
+    content: Compress Markdown context for a question while preserving answer paragraph.
+  expected_output: "{\n  \"scenario\": \"query-specific-markdown-latte\",\n  \"tool_id\": \"compresr.query.markdown\",\n \
+    \ \"required_facts\": [\n    {\n      \"kind\": \"literal\",\n      \"value\": \"Dropping legacy_events.payload is irreversible\"\
+    \n    },\n    {\n      \"kind\": \"literal\",\n      \"value\": \"deploy 2026.05.20.4\"\n    }\n  ],\n  \"compresr_baseline_text\"\
+    : \"Compresr latte keeps irreversible migration paragraph for query, with shadow ref to full Markdown.\",\n  \"compresr_baseline_tokens\"\
+    : 25,\n  \"min_fact_score\": 1,\n  \"install_config\": {\n    \"pythonPackage\": \"compresr\",\n    \"installedVersion\"\
+    : \"2.5.1\",\n    \"installCommand\": \"python -m pip install --user compresr==2.5.1\",\n    \"apiKeyEnvVar\": \"COMPRESR_API_KEY\"\
+    ,\n    \"liveApiMode\": \"disabled-without-api-key\",\n    \"baselineMode\": \"deterministic-installed-sdk-model-baselines\"\
+    ,\n    \"models\": [\n      \"espresso_v1\",\n      \"latte_v1\",\n      \"agentic_history_lingua\",\n      \"agentic_tool_output_gemfilter\"\
+    ,\n      \"agentic_tool_output_lingua\",\n      \"agentic_tool_discovery_sat\"\n    ],\n    \"endpoints\": [\n      \"\
+    /api/compress/question-agnostic/\",\n      \"/api/compress/question-specific/\",\n      \"/api/compress/question-agnostic/batch\"\
+    ,\n      \"/api/compress/question-specific/batch\"\n    ]\n  }\n}\n"
+  assertions:
+  - name: tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: agnostic-doc-espresso
+  input:
+  - role: user
+    content: Compress documentation without query while retaining headline and warning.
+  expected_output: "{\n  \"scenario\": \"agnostic-doc-espresso\",\n  \"tool_id\": \"compresr.agnostic.doc\",\n  \"required_facts\"\
+    : [\n    {\n      \"kind\": \"literal\",\n      \"value\": \"Production Signing Key\"\n    },\n    {\n      \"kind\":\
+    \ \"literal\",\n      \"value\": \"invalidates all active sessions\"\n    }\n  ],\n  \"compresr_baseline_text\": \"Compresr\
+    \ espresso keeps heading and warning, strips explanatory filler, returns compressed doc text.\",\n  \"compresr_baseline_tokens\"\
+    : 25,\n  \"min_fact_score\": 1,\n  \"install_config\": {\n    \"pythonPackage\": \"compresr\",\n    \"installedVersion\"\
+    : \"2.5.1\",\n    \"installCommand\": \"python -m pip install --user compresr==2.5.1\",\n    \"apiKeyEnvVar\": \"COMPRESR_API_KEY\"\
+    ,\n    \"liveApiMode\": \"disabled-without-api-key\",\n    \"baselineMode\": \"deterministic-installed-sdk-model-baselines\"\
+    ,\n    \"models\": [\n      \"espresso_v1\",\n      \"latte_v1\",\n      \"agentic_history_lingua\",\n      \"agentic_tool_output_gemfilter\"\
+    ,\n      \"agentic_tool_output_lingua\",\n      \"agentic_tool_discovery_sat\"\n    ],\n    \"endpoints\": [\n      \"\
+    /api/compress/question-agnostic/\",\n      \"/api/compress/question-specific/\",\n      \"/api/compress/question-agnostic/batch\"\
+    ,\n      \"/api/compress/question-specific/batch\"\n    ]\n  }\n}\n"
+  assertions:
+  - name: tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: batch-mixed-contexts
+  input:
+  - role: user
+    content: Compress multiple contexts in one batch while preserving per-item facts.
+  expected_output: "{\n  \"scenario\": \"batch-mixed-contexts\",\n  \"tool_id\": \"compresr.batch.contexts\",\n  \"required_facts\"\
+    : [\n    {\n      \"kind\": \"jsonPath\",\n      \"path\": \"$.results[1].id\",\n      \"expected\": \"doc-b\"\n    },\n\
+    \    {\n      \"kind\": \"jsonPath\",\n      \"path\": \"$.average_compression_ratio\",\n      \"expected\": 0.31\n  \
+    \  }\n  ],\n  \"compresr_baseline_text\": \"Compresr batch response preserves doc-b result, average ratio 0.31, total\
+    \ token savings across contexts.\",\n  \"compresr_baseline_tokens\": 26,\n  \"min_fact_score\": 1,\n  \"install_config\"\
+    : {\n    \"pythonPackage\": \"compresr\",\n    \"installedVersion\": \"2.5.1\",\n    \"installCommand\": \"python -m pip\
+    \ install --user compresr==2.5.1\",\n    \"apiKeyEnvVar\": \"COMPRESR_API_KEY\",\n    \"liveApiMode\": \"disabled-without-api-key\"\
+    ,\n    \"baselineMode\": \"deterministic-installed-sdk-model-baselines\",\n    \"models\": [\n      \"espresso_v1\",\n\
+    \      \"latte_v1\",\n      \"agentic_history_lingua\",\n      \"agentic_tool_output_gemfilter\",\n      \"agentic_tool_output_lingua\"\
+    ,\n      \"agentic_tool_discovery_sat\"\n    ],\n    \"endpoints\": [\n      \"/api/compress/question-agnostic/\",\n \
+    \     \"/api/compress/question-specific/\",\n      \"/api/compress/question-agnostic/batch\",\n      \"/api/compress/question-specific/batch\"\
+    \n    ]\n  }\n}\n"
+  assertions:
+  - name: tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: cost-aware-skip-cheap-model
+  input:
+  - role: user
+    content: Skip expensive compression when target model is cheap.
+  expected_output: "{\n  \"scenario\": \"cost-aware-skip-cheap-model\",\n  \"tool_id\": \"compresr.cost.skip\",\n  \"required_facts\"\
+    : [\n    {\n      \"kind\": \"jsonPath\",\n      \"path\": \"$.decision\",\n      \"expected\": \"skip\"\n    },\n   \
+    \ {\n      \"kind\": \"jsonPath\",\n      \"path\": \"$.reason\",\n      \"expected\": \"cheap-model\"\n    }\n  ],\n\
+    \  \"compresr_baseline_text\": \"Compresr skips compression for cheap-model target unless bypass_cost_check is enabled,\
+    \ with skip metrics logged.\",\n  \"compresr_baseline_tokens\": 28,\n  \"min_fact_score\": 1,\n  \"install_config\": {\n\
+    \    \"pythonPackage\": \"compresr\",\n    \"installedVersion\": \"2.5.1\",\n    \"installCommand\": \"python -m pip install\
+    \ --user compresr==2.5.1\",\n    \"apiKeyEnvVar\": \"COMPRESR_API_KEY\",\n    \"liveApiMode\": \"disabled-without-api-key\"\
+    ,\n    \"baselineMode\": \"deterministic-installed-sdk-model-baselines\",\n    \"models\": [\n      \"espresso_v1\",\n\
+    \      \"latte_v1\",\n      \"agentic_history_lingua\",\n      \"agentic_tool_output_gemfilter\",\n      \"agentic_tool_output_lingua\"\
+    ,\n      \"agentic_tool_discovery_sat\"\n    ],\n    \"endpoints\": [\n      \"/api/compress/question-agnostic/\",\n \
+    \     \"/api/compress/question-specific/\",\n      \"/api/compress/question-agnostic/batch\",\n      \"/api/compress/question-specific/batch\"\
+    \n    ]\n  }\n}\n"
+  assertions:
+  - name: tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: format-gate-unsupported-binary
+  input:
+  - role: user
+    content: Avoid semantic compression for unsupported binary output.
+  expected_output: "{\n  \"scenario\": \"format-gate-unsupported-binary\",\n  \"tool_id\": \"compresr.format.binary\",\n \
+    \ \"required_facts\": [\n    {\n      \"kind\": \"literal\",\n      \"value\": \"format=binary\"\n    },\n    {\n    \
+    \  \"kind\": \"literal\",\n      \"value\": \"compression=skipped\"\n    }\n  ],\n  \"compresr_baseline_text\": \"Compresr\
+    \ skips unsupported binary formats and records format=binary skip reason.\",\n  \"compresr_baseline_tokens\": 20,\n  \"\
+    min_fact_score\": 1,\n  \"install_config\": {\n    \"pythonPackage\": \"compresr\",\n    \"installedVersion\": \"2.5.1\"\
+    ,\n    \"installCommand\": \"python -m pip install --user compresr==2.5.1\",\n    \"apiKeyEnvVar\": \"COMPRESR_API_KEY\"\
+    ,\n    \"liveApiMode\": \"disabled-without-api-key\",\n    \"baselineMode\": \"deterministic-installed-sdk-model-baselines\"\
+    ,\n    \"models\": [\n      \"espresso_v1\",\n      \"latte_v1\",\n      \"agentic_history_lingua\",\n      \"agentic_tool_output_gemfilter\"\
+    ,\n      \"agentic_tool_output_lingua\",\n      \"agentic_tool_discovery_sat\"\n    ],\n    \"endpoints\": [\n      \"\
+    /api/compress/question-agnostic/\",\n      \"/api/compress/question-specific/\",\n      \"/api/compress/question-agnostic/batch\"\
+    ,\n      \"/api/compress/question-specific/batch\"\n    ]\n  }\n}\n"
+  assertions:
+  - name: tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: skip-tool-policy
+  input:
+  - role: user
+    content: Respect configured skip_tools for security-sensitive tool output.
+  expected_output: "{\n  \"scenario\": \"skip-tool-policy\",\n  \"tool_id\": \"compresr.skip.tool\",\n  \"required_facts\"\
+    : [\n    {\n      \"kind\": \"jsonPath\",\n      \"path\": \"$.tool\",\n      \"expected\": \"secrets.dump\"\n    },\n\
+    \    {\n      \"kind\": \"jsonPath\",\n      \"path\": \"$.mapping_status\",\n      \"expected\": \"skipped_by_policy\"\
+    \n    }\n  ],\n  \"compresr_baseline_text\": \"Compresr skip_tools marks secrets.dump skipped_by_policy and avoids compression.\"\
+    ,\n  \"compresr_baseline_tokens\": 20,\n  \"min_fact_score\": 1,\n  \"install_config\": {\n    \"pythonPackage\": \"compresr\"\
+    ,\n    \"installedVersion\": \"2.5.1\",\n    \"installCommand\": \"python -m pip install --user compresr==2.5.1\",\n \
+    \   \"apiKeyEnvVar\": \"COMPRESR_API_KEY\",\n    \"liveApiMode\": \"disabled-without-api-key\",\n    \"baselineMode\"\
+    : \"deterministic-installed-sdk-model-baselines\",\n    \"models\": [\n      \"espresso_v1\",\n      \"latte_v1\",\n \
+    \     \"agentic_history_lingua\",\n      \"agentic_tool_output_gemfilter\",\n      \"agentic_tool_output_lingua\",\n \
+    \     \"agentic_tool_discovery_sat\"\n    ],\n    \"endpoints\": [\n      \"/api/compress/question-agnostic/\",\n    \
+    \  \"/api/compress/question-specific/\",\n      \"/api/compress/question-agnostic/batch\",\n      \"/api/compress/question-specific/batch\"\
+    \n    ]\n  }\n}\n"
+  assertions:
+  - name: tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: already-compressed-ref-bypass
+  input:
+  - role: user
+    content: Avoid recompressing content that already contains a shadow reference.
+  expected_output: "{\n  \"scenario\": \"already-compressed-ref-bypass\",\n  \"tool_id\": \"compresr.ref.bypass\",\n  \"required_facts\"\
+    : [\n    {\n      \"kind\": \"literal\",\n      \"value\": \"already_compressed=true\"\n    },\n    {\n      \"kind\"\
+    : \"literal\",\n      \"value\": \"[REF:abc123]\"\n    }\n  ],\n  \"compresr_baseline_text\": \"Compresr detects [REF:abc123]\
+    \ as already compressed and skips duplicate compression.\",\n  \"compresr_baseline_tokens\": 21,\n  \"min_fact_score\"\
+    : 1,\n  \"install_config\": {\n    \"pythonPackage\": \"compresr\",\n    \"installedVersion\": \"2.5.1\",\n    \"installCommand\"\
+    : \"python -m pip install --user compresr==2.5.1\",\n    \"apiKeyEnvVar\": \"COMPRESR_API_KEY\",\n    \"liveApiMode\"\
+    : \"disabled-without-api-key\",\n    \"baselineMode\": \"deterministic-installed-sdk-model-baselines\",\n    \"models\"\
+    : [\n      \"espresso_v1\",\n      \"latte_v1\",\n      \"agentic_history_lingua\",\n      \"agentic_tool_output_gemfilter\"\
+    ,\n      \"agentic_tool_output_lingua\",\n      \"agentic_tool_discovery_sat\"\n    ],\n    \"endpoints\": [\n      \"\
+    /api/compress/question-agnostic/\",\n      \"/api/compress/question-specific/\",\n      \"/api/compress/question-agnostic/batch\"\
+    ,\n      \"/api/compress/question-specific/batch\"\n    ]\n  }\n}\n"
+  assertions:
+  - name: tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: structured-prefix-json
+  input:
+  - role: user
+    content: Preserve JSON prefix while compressing trailing explanatory text.
+  expected_output: "{\n  \"scenario\": \"structured-prefix-json\",\n  \"tool_id\": \"compresr.prefix.json\",\n  \"required_facts\"\
+    : [\n    {\n      \"kind\": \"literal\",\n      \"value\": \"\\\"status\\\":\\\"failed\\\"\"\n    },\n    {\n      \"\
+    kind\": \"literal\",\n      \"value\": \"\\\"runId\\\":\\\"run-77\\\"\"\n    }\n  ],\n  \"compresr_baseline_text\": \"\
+    Compresr preserves JSON prefix with status failed and runId run-77, compresses trailing explanation.\",\n  \"compresr_baseline_tokens\"\
+    : 25,\n  \"min_fact_score\": 1,\n  \"install_config\": {\n    \"pythonPackage\": \"compresr\",\n    \"installedVersion\"\
+    : \"2.5.1\",\n    \"installCommand\": \"python -m pip install --user compresr==2.5.1\",\n    \"apiKeyEnvVar\": \"COMPRESR_API_KEY\"\
+    ,\n    \"liveApiMode\": \"disabled-without-api-key\",\n    \"baselineMode\": \"deterministic-installed-sdk-model-baselines\"\
+    ,\n    \"models\": [\n      \"espresso_v1\",\n      \"latte_v1\",\n      \"agentic_history_lingua\",\n      \"agentic_tool_output_gemfilter\"\
+    ,\n      \"agentic_tool_output_lingua\",\n      \"agentic_tool_discovery_sat\"\n    ],\n    \"endpoints\": [\n      \"\
+    /api/compress/question-agnostic/\",\n      \"/api/compress/question-specific/\",\n      \"/api/compress/question-agnostic/batch\"\
+    ,\n      \"/api/compress/question-specific/batch\"\n    ]\n  }\n}\n"
+  assertions:
+  - name: tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: structured-prefix-yaml
+  input:
+  - role: user
+    content: Preserve YAML prefix with tool route metadata.
+  expected_output: "{\n  \"scenario\": \"structured-prefix-yaml\",\n  \"tool_id\": \"compresr.prefix.yaml\",\n  \"required_facts\"\
+    : [\n    {\n      \"kind\": \"literal\",\n      \"value\": \"route: shell.git.diff\"\n    },\n    {\n      \"kind\": \"\
+    literal\",\n      \"value\": \"confidence: 0.95\"\n    }\n  ],\n  \"compresr_baseline_text\": \"Compresr preserves YAML\
+    \ route shell.git.diff and confidence 0.95 before compressing notes.\",\n  \"compresr_baseline_tokens\": 23,\n  \"min_fact_score\"\
+    : 1,\n  \"install_config\": {\n    \"pythonPackage\": \"compresr\",\n    \"installedVersion\": \"2.5.1\",\n    \"installCommand\"\
+    : \"python -m pip install --user compresr==2.5.1\",\n    \"apiKeyEnvVar\": \"COMPRESR_API_KEY\",\n    \"liveApiMode\"\
+    : \"disabled-without-api-key\",\n    \"baselineMode\": \"deterministic-installed-sdk-model-baselines\",\n    \"models\"\
+    : [\n      \"espresso_v1\",\n      \"latte_v1\",\n      \"agentic_history_lingua\",\n      \"agentic_tool_output_gemfilter\"\
+    ,\n      \"agentic_tool_output_lingua\",\n      \"agentic_tool_discovery_sat\"\n    ],\n    \"endpoints\": [\n      \"\
+    /api/compress/question-agnostic/\",\n      \"/api/compress/question-specific/\",\n      \"/api/compress/question-agnostic/batch\"\
+    ,\n      \"/api/compress/question-specific/batch\"\n    ]\n  }\n}\n"
+  assertions:
+  - name: tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: placeholder-control-disabled
+  input:
+  - role: user
+    content: Disable placeholders so required terms remain explicit.
+  expected_output: "{\n  \"scenario\": \"placeholder-control-disabled\",\n  \"tool_id\": \"compresr.placeholders.disabled\"\
+    ,\n  \"required_facts\": [\n    {\n      \"kind\": \"literal\",\n      \"value\": \"disable_placeholders=true\"\n    },\n\
+    \    {\n      \"kind\": \"literal\",\n      \"value\": \"OPENAI_API_KEY=[REDACTED]\"\n    }\n  ],\n  \"compresr_baseline_text\"\
+    : \"Compresr disable_placeholders keeps redacted API key and env path explicit.\",\n  \"compresr_baseline_tokens\": 19,\n\
+    \  \"min_fact_score\": 1,\n  \"install_config\": {\n    \"pythonPackage\": \"compresr\",\n    \"installedVersion\": \"\
+    2.5.1\",\n    \"installCommand\": \"python -m pip install --user compresr==2.5.1\",\n    \"apiKeyEnvVar\": \"COMPRESR_API_KEY\"\
+    ,\n    \"liveApiMode\": \"disabled-without-api-key\",\n    \"baselineMode\": \"deterministic-installed-sdk-model-baselines\"\
+    ,\n    \"models\": [\n      \"espresso_v1\",\n      \"latte_v1\",\n      \"agentic_history_lingua\",\n      \"agentic_tool_output_gemfilter\"\
+    ,\n      \"agentic_tool_output_lingua\",\n      \"agentic_tool_discovery_sat\"\n    ],\n    \"endpoints\": [\n      \"\
+    /api/compress/question-agnostic/\",\n      \"/api/compress/question-specific/\",\n      \"/api/compress/question-agnostic/batch\"\
+    ,\n      \"/api/compress/question-specific/batch\"\n    ]\n  }\n}\n"
+  assertions:
+  - name: tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: heuristic-chunking-boundary
+  input:
+  - role: user
+    content: Chunk long text without splitting exact error string.
+  expected_output: "{\n  \"scenario\": \"heuristic-chunking-boundary\",\n  \"tool_id\": \"compresr.chunking.heuristic\",\n\
+    \  \"required_facts\": [\n    {\n      \"kind\": \"literal\",\n      \"value\": \"Cannot read directory \\\"../../../../..\\\
+    \": Access is denied.\"\n    },\n    {\n      \"kind\": \"literal\",\n      \"value\": \"paragraph 6\"\n    }\n  ],\n\
+    \  \"compresr_baseline_text\": \"Compresr heuristic chunking keeps exact Access is denied error and relevant paragraph\
+    \ boundary.\",\n  \"compresr_baseline_tokens\": 24,\n  \"min_fact_score\": 1,\n  \"install_config\": {\n    \"pythonPackage\"\
+    : \"compresr\",\n    \"installedVersion\": \"2.5.1\",\n    \"installCommand\": \"python -m pip install --user compresr==2.5.1\"\
+    ,\n    \"apiKeyEnvVar\": \"COMPRESR_API_KEY\",\n    \"liveApiMode\": \"disabled-without-api-key\",\n    \"baselineMode\"\
+    : \"deterministic-installed-sdk-model-baselines\",\n    \"models\": [\n      \"espresso_v1\",\n      \"latte_v1\",\n \
+    \     \"agentic_history_lingua\",\n      \"agentic_tool_output_gemfilter\",\n      \"agentic_tool_output_lingua\",\n \
+    \     \"agentic_tool_discovery_sat\"\n    ],\n    \"endpoints\": [\n      \"/api/compress/question-agnostic/\",\n    \
+    \  \"/api/compress/question-specific/\",\n      \"/api/compress/question-agnostic/batch\",\n      \"/api/compress/question-specific/batch\"\
+    \n    ]\n  }\n}\n"
+  assertions:
+  - name: tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: coarse-paragraph-mode
+  input:
+  - role: user
+    content: Coarse paragraph mode keeps whole selected paragraph.
+  expected_output: "{\n  \"scenario\": \"coarse-paragraph-mode\",\n  \"tool_id\": \"compresr.coarse.paragraph\",\n  \"required_facts\"\
+    : [\n    {\n      \"kind\": \"literal\",\n      \"value\": \"PII for at most 30 days\"\n    },\n    {\n      \"kind\"\
+    : \"literal\",\n      \"value\": \"EU regions\"\n    }\n  ],\n  \"compresr_baseline_text\": \"Compresr coarse mode retains\
+    \ whole privacy paragraph with 30-day EU PII retention.\",\n  \"compresr_baseline_tokens\": 21,\n  \"min_fact_score\"\
+    : 1,\n  \"install_config\": {\n    \"pythonPackage\": \"compresr\",\n    \"installedVersion\": \"2.5.1\",\n    \"installCommand\"\
+    : \"python -m pip install --user compresr==2.5.1\",\n    \"apiKeyEnvVar\": \"COMPRESR_API_KEY\",\n    \"liveApiMode\"\
+    : \"disabled-without-api-key\",\n    \"baselineMode\": \"deterministic-installed-sdk-model-baselines\",\n    \"models\"\
+    : [\n      \"espresso_v1\",\n      \"latte_v1\",\n      \"agentic_history_lingua\",\n      \"agentic_tool_output_gemfilter\"\
+    ,\n      \"agentic_tool_output_lingua\",\n      \"agentic_tool_discovery_sat\"\n    ],\n    \"endpoints\": [\n      \"\
+    /api/compress/question-agnostic/\",\n      \"/api/compress/question-specific/\",\n      \"/api/compress/question-agnostic/batch\"\
+    ,\n      \"/api/compress/question-specific/batch\"\n    ]\n  }\n}\n"
+  assertions:
+  - name: tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: telemetry-jsonl-savings
+  input:
+  - role: user
+    content: Record compression savings in JSONL telemetry.
+  expected_output: "{\n  \"scenario\": \"telemetry-jsonl-savings\",\n  \"tool_id\": \"compresr.telemetry\",\n  \"required_facts\"\
+    : [\n    {\n      \"kind\": \"jsonPath\",\n      \"path\": \"$.tokens_saved\",\n      \"expected\": 7100\n    },\n   \
+    \ {\n      \"kind\": \"jsonPath\",\n      \"path\": \"$.tool\",\n      \"expected\": \"shell.rg\"\n    }\n  ],\n  \"compresr_baseline_text\"\
+    : \"Compresr telemetry logs original 8200 tokens, compressed 1100 tokens, 7100 saved for shell.rg.\",\n  \"compresr_baseline_tokens\"\
+    : 24,\n  \"min_fact_score\": 1,\n  \"install_config\": {\n    \"pythonPackage\": \"compresr\",\n    \"installedVersion\"\
+    : \"2.5.1\",\n    \"installCommand\": \"python -m pip install --user compresr==2.5.1\",\n    \"apiKeyEnvVar\": \"COMPRESR_API_KEY\"\
+    ,\n    \"liveApiMode\": \"disabled-without-api-key\",\n    \"baselineMode\": \"deterministic-installed-sdk-model-baselines\"\
+    ,\n    \"models\": [\n      \"espresso_v1\",\n      \"latte_v1\",\n      \"agentic_history_lingua\",\n      \"agentic_tool_output_gemfilter\"\
+    ,\n      \"agentic_tool_output_lingua\",\n      \"agentic_tool_discovery_sat\"\n    ],\n    \"endpoints\": [\n      \"\
+    /api/compress/question-agnostic/\",\n      \"/api/compress/question-specific/\",\n      \"/api/compress/question-agnostic/batch\"\
+    ,\n      \"/api/compress/question-specific/batch\"\n    ]\n  }\n}\n"
+  assertions:
+  - name: tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: provider-adapter-openai-tool-call
+  input:
+  - role: user
+    content: Extract OpenAI tool call output from provider request shape.
+  expected_output: "{\n  \"scenario\": \"provider-adapter-openai-tool-call\",\n  \"tool_id\": \"compresr.adapter.openai\"\
+    ,\n  \"required_facts\": [\n    {\n      \"kind\": \"jsonPath\",\n      \"path\": \"$.messages[0].tool_call_id\",\n  \
+    \    \"expected\": \"call_123\"\n    },\n    {\n      \"kind\": \"jsonPath\",\n      \"path\": \"$.messages[0].role\"\
+    ,\n      \"expected\": \"tool\"\n    }\n  ],\n  \"compresr_baseline_text\": \"Compresr OpenAI adapter extracts tool_call_id\
+    \ call_123 and compresses tool-role content.\",\n  \"compresr_baseline_tokens\": 22,\n  \"min_fact_score\": 1,\n  \"install_config\"\
+    : {\n    \"pythonPackage\": \"compresr\",\n    \"installedVersion\": \"2.5.1\",\n    \"installCommand\": \"python -m pip\
+    \ install --user compresr==2.5.1\",\n    \"apiKeyEnvVar\": \"COMPRESR_API_KEY\",\n    \"liveApiMode\": \"disabled-without-api-key\"\
+    ,\n    \"baselineMode\": \"deterministic-installed-sdk-model-baselines\",\n    \"models\": [\n      \"espresso_v1\",\n\
+    \      \"latte_v1\",\n      \"agentic_history_lingua\",\n      \"agentic_tool_output_gemfilter\",\n      \"agentic_tool_output_lingua\"\
+    ,\n      \"agentic_tool_discovery_sat\"\n    ],\n    \"endpoints\": [\n      \"/api/compress/question-agnostic/\",\n \
+    \     \"/api/compress/question-specific/\",\n      \"/api/compress/question-agnostic/batch\",\n      \"/api/compress/question-specific/batch\"\
+    \n    ]\n  }\n}\n"
+  assertions:
+  - name: tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: provider-adapter-anthropic-blocks
+  input:
+  - role: user
+    content: Extract Anthropic tool_result blocks while preserving tool_use_id.
+  expected_output: "{\n  \"scenario\": \"provider-adapter-anthropic-blocks\",\n  \"tool_id\": \"compresr.adapter.anthropic\"\
+    ,\n  \"required_facts\": [\n    {\n      \"kind\": \"jsonPath\",\n      \"path\": \"$.content[0].type\",\n      \"expected\"\
+    : \"tool_result\"\n    },\n    {\n      \"kind\": \"jsonPath\",\n      \"path\": \"$.content[0].tool_use_id\",\n     \
+    \ \"expected\": \"toolu_456\"\n    }\n  ],\n  \"compresr_baseline_text\": \"Compresr Anthropic adapter extracts tool_result\
+    \ block with tool_use_id toolu_456.\",\n  \"compresr_baseline_tokens\": 21,\n  \"min_fact_score\": 1,\n  \"install_config\"\
+    : {\n    \"pythonPackage\": \"compresr\",\n    \"installedVersion\": \"2.5.1\",\n    \"installCommand\": \"python -m pip\
+    \ install --user compresr==2.5.1\",\n    \"apiKeyEnvVar\": \"COMPRESR_API_KEY\",\n    \"liveApiMode\": \"disabled-without-api-key\"\
+    ,\n    \"baselineMode\": \"deterministic-installed-sdk-model-baselines\",\n    \"models\": [\n      \"espresso_v1\",\n\
+    \      \"latte_v1\",\n      \"agentic_history_lingua\",\n      \"agentic_tool_output_gemfilter\",\n      \"agentic_tool_output_lingua\"\
+    ,\n      \"agentic_tool_discovery_sat\"\n    ],\n    \"endpoints\": [\n      \"/api/compress/question-agnostic/\",\n \
+    \     \"/api/compress/question-specific/\",\n      \"/api/compress/question-agnostic/batch\",\n      \"/api/compress/question-specific/batch\"\
+    \n    ]\n  }\n}\n"
+  assertions:
+  - name: tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: remote-api-key-missing-fail-open
+  input:
+  - role: user
+    content: Fail open when Compresr API key is missing.
+  expected_output: "{\n  \"scenario\": \"remote-api-key-missing-fail-open\",\n  \"tool_id\": \"compresr.api-key.missing\"\
+    ,\n  \"required_facts\": [\n    {\n      \"kind\": \"jsonPath\",\n      \"path\": \"$.apiKeyEnvVar\",\n      \"expected\"\
+    : \"COMPRESR_API_KEY\"\n    },\n    {\n      \"kind\": \"jsonPath\",\n      \"path\": \"$.behavior\",\n      \"expected\"\
+    : \"fail-open-local\"\n    }\n  ],\n  \"compresr_baseline_text\": \"Compresr hosted API requires COMPRESR_API_KEY; UTK\
+    \ records fail-open-local behavior when missing.\",\n  \"compresr_baseline_tokens\": 25,\n  \"min_fact_score\": 1,\n \
+    \ \"install_config\": {\n    \"pythonPackage\": \"compresr\",\n    \"installedVersion\": \"2.5.1\",\n    \"installCommand\"\
+    : \"python -m pip install --user compresr==2.5.1\",\n    \"apiKeyEnvVar\": \"COMPRESR_API_KEY\",\n    \"liveApiMode\"\
+    : \"disabled-without-api-key\",\n    \"baselineMode\": \"deterministic-installed-sdk-model-baselines\",\n    \"models\"\
+    : [\n      \"espresso_v1\",\n      \"latte_v1\",\n      \"agentic_history_lingua\",\n      \"agentic_tool_output_gemfilter\"\
+    ,\n      \"agentic_tool_output_lingua\",\n      \"agentic_tool_discovery_sat\"\n    ],\n    \"endpoints\": [\n      \"\
+    /api/compress/question-agnostic/\",\n      \"/api/compress/question-specific/\",\n      \"/api/compress/question-agnostic/batch\"\
+    ,\n      \"/api/compress/question-specific/batch\"\n    ]\n  }\n}\n"
+  assertions:
+  - name: tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: vscode-markdown-backup
+  input:
+  - role: user
+    content: Compress Markdown file with backup and preview workflow.
+  expected_output: "{\n  \"scenario\": \"vscode-markdown-backup\",\n  \"tool_id\": \"compresr.vscode.markdown\",\n  \"required_facts\"\
+    : [\n    {\n      \"kind\": \"jsonPath\",\n      \"path\": \"$.backup\",\n      \"expected\": \"docs/evals.md.bak\"\n\
+    \    },\n    {\n      \"kind\": \"jsonPath\",\n      \"path\": \"$.preview\",\n      \"expected\": \"side-by-side\"\n\
+    \    }\n  ],\n  \"compresr_baseline_text\": \"Compresr VS Code extension compresses Markdown with side-by-side preview\
+    \ and docs/evals.md.bak backup.\",\n  \"compresr_baseline_tokens\": 26,\n  \"min_fact_score\": 1,\n  \"install_config\"\
+    : {\n    \"pythonPackage\": \"compresr\",\n    \"installedVersion\": \"2.5.1\",\n    \"installCommand\": \"python -m pip\
+    \ install --user compresr==2.5.1\",\n    \"apiKeyEnvVar\": \"COMPRESR_API_KEY\",\n    \"liveApiMode\": \"disabled-without-api-key\"\
+    ,\n    \"baselineMode\": \"deterministic-installed-sdk-model-baselines\",\n    \"models\": [\n      \"espresso_v1\",\n\
+    \      \"latte_v1\",\n      \"agentic_history_lingua\",\n      \"agentic_tool_output_gemfilter\",\n      \"agentic_tool_output_lingua\"\
+    ,\n      \"agentic_tool_discovery_sat\"\n    ],\n    \"endpoints\": [\n      \"/api/compress/question-agnostic/\",\n \
+    \     \"/api/compress/question-specific/\",\n      \"/api/compress/question-agnostic/batch\",\n      \"/api/compress/question-specific/batch\"\
+    \n    ]\n  }\n}\n"
+  assertions:
+  - name: tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: agentic-tool-output-lingua
+  input:
+  - role: user
+    content: Compare agentic_tool_output_lingua against UTK compact artifact.
+  expected_output: "{\n  \"scenario\": \"agentic-tool-output-lingua\",\n  \"tool_id\": \"compresr.agentic.lingua\",\n  \"\
+    required_facts\": [\n    {\n      \"kind\": \"jsonPath\",\n      \"path\": \"$.model\",\n      \"expected\": \"agentic_tool_output_lingua\"\
+    \n    },\n    {\n      \"kind\": \"jsonPath\",\n      \"path\": \"$.diagnostic\",\n      \"expected\": \"TS2345 schemaId\
+    \ may be undefined\"\n    }\n  ],\n  \"compresr_baseline_text\": \"Compresr agentic_tool_output_lingua keeps TS2345 diagnostic\
+    \ and router.ts line 87 path.\",\n  \"compresr_baseline_tokens\": 22,\n  \"min_fact_score\": 1,\n  \"install_config\"\
+    : {\n    \"pythonPackage\": \"compresr\",\n    \"installedVersion\": \"2.5.1\",\n    \"installCommand\": \"python -m pip\
+    \ install --user compresr==2.5.1\",\n    \"apiKeyEnvVar\": \"COMPRESR_API_KEY\",\n    \"liveApiMode\": \"disabled-without-api-key\"\
+    ,\n    \"baselineMode\": \"deterministic-installed-sdk-model-baselines\",\n    \"models\": [\n      \"espresso_v1\",\n\
+    \      \"latte_v1\",\n      \"agentic_history_lingua\",\n      \"agentic_tool_output_gemfilter\",\n      \"agentic_tool_output_lingua\"\
+    ,\n      \"agentic_tool_discovery_sat\"\n    ],\n    \"endpoints\": [\n      \"/api/compress/question-agnostic/\",\n \
+    \     \"/api/compress/question-specific/\",\n      \"/api/compress/question-agnostic/batch\",\n      \"/api/compress/question-specific/batch\"\
+    \n    ]\n  }\n}\n"
+  assertions:
+  - name: tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0

@@ -1,0 +1,24 @@
+name: evals-tools-call-completion-tool-trajectory
+version: "1.0"
+description: Tool call completion cases using native tool-trajectory and execution metrics.
+metadata:
+  layered_evaluator_surface: true
+tests:
+  - id: shell-status-tool-trajectory
+    input:
+      - role: user
+        content: "Inspect the workspace status with a shell tool, then summarize modified and untracked files."
+    expected_output: "Agent should call a shell-capable tool before summarizing workspace status."
+    assertions:
+      - name: shell-tool-called
+        type: tool-trajectory
+        mode: any_order
+        minimums:
+          Bash: 1
+        weight: 3
+      - name: bounded-tool-run
+        type: execution-metrics
+        max_tool_calls: 5
+        max_tokens: 6000
+        max_duration_ms: 120000
+        weight: 1

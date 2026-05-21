@@ -1,0 +1,29 @@
+name: evals-ghcp-agents-definition-compaction-ghcp-agent-definition-compaction
+version: '1.0'
+description: GitHub Copilot agent definition compaction cases.
+metadata:
+  layered_evaluator_surface: true
+tests:
+- id: ghcp-agent-definition-compaction
+  input:
+  - role: user
+    content: Compress a GitHub Copilot agent tool definition while preserving repository, pull request, and branch parameters.
+  expected_output: '{"scenario":"ghcp-agent-definition-compaction","required_terms":["repository","pull request","branch"],"rtk_baseline_tokens":40,"max_token_ratio":1}'
+  assertions:
+  - name: ghcp-definition-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/ghcp/agents/definition_compaction/gradeGhcpAgentDefinitionCompaction.ts
+    weight: 2
+  - name: ghcp-definition-quality
+    type: llm-grader
+    target: grader-openai
+    weight: 1
+    rubrics:
+    - id: ghcp-definition-fidelity
+      outcome: Response preserves GitHub Copilot agent parameters and constraints.
+      required: true
+      weight: 2

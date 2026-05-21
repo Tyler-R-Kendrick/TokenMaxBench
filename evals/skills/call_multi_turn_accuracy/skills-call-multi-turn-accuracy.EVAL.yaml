@@ -1,0 +1,37 @@
+name: evals-skills-call-multi-turn-accuracy-skills-call-multi-turn-accuracy
+version: '1.0'
+description: Multi-turn skill accuracy cases using full conversation history.
+metadata:
+  layered_evaluator_surface: true
+tests:
+- id: skill-multi-turn-retention
+  input:
+  - role: user
+    content: We are evaluating the output-compaction skill. It must preserve exact error codes.
+  - role: assistant
+    content: 'Understood: preserve exact error codes.'
+  - role: user
+    content: 'Now compress: TS2345 at router.ts:87 because schemaId may be undefined.'
+  expected_output: '{"scenario":"skill-multi-turn-retention","required_terms":["TS2345","router.ts:87","schemaId"],"compresr_baseline_tokens":35,"max_token_ratio":1}'
+  assertions:
+  - name: skill-multi-turn-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/skills/call_multi_turn_accuracy/gradeSkillMultiTurnAccuracy.ts
+    weight: 2
+  - name: skill-multi-turn-quality
+    type: llm-grader
+    target: grader-openai
+    weight: 1
+    rubrics:
+    - id: multi-turn-context
+      outcome: Response follows the earlier instruction to preserve exact error codes.
+      required: true
+      weight: 2
+    - id: latest-turn-resolution
+      outcome: Response correctly compresses the latest user content.
+      required: true
+      weight: 1
