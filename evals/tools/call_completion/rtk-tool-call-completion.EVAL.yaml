@@ -458,8 +458,9 @@ tests:
   - role: user
     content: Compress secret-bearing logs without leaking raw output in response.
   expected_output: "{\n  \"scenario\": \"secret-bearing-log\",\n  \"tool_id\": \"tool.secret-log\",\n  \"required_facts\"\
-    : [\n    {\n      \"kind\": \"literal\",\n      \"value\": \"OPENAI_API_KEY=sk-live-1234567890abcdef\"\n    },\n    {\n\
-    \      \"kind\": \"literal\",\n      \"value\": \"rotate key and scrub .env.local\"\n    }\n  ],\n  \"rtk_supported\"\
+    : [\n    {\n      \"kind\": \"literal\",\n      \"value\": \"OPENAI_API_KEY=<REDACTED>\"\n    },\n    {\n\
+    \      \"kind\": \"literal\",\n      \"value\": \"rotate key and scrub .env.local\"\n    }\n  ],\n  \"forbidden_patterns\"\
+    : [\n    \"sk-[a-zA-Z0-9]{20,}\"\n  ],\n  \"rtk_supported\"\
     : false,\n  \"rtk_baseline_bytes\": 0,\n  \"rtk_baseline_tokens\": 12,\n  \"rtk_notes\": \"No direct RTK equivalent; compare\
     \ UTK compact output against raw-output savings threshold.\"\n}\n"
   assertions:

@@ -423,9 +423,9 @@ tests:
   input:
   - role: user
     content: Shrink a link handoff while preserving query params and fragment.
-  expected_output: "{\n  \"scenario\": \"url-query-fragment\",\n  \"caveman_baseline\": \"Reviewer link: `https://agentv.dev/docs/evaluation/sdk/`;\
-    \ verify TS code-grader example.\",\n  \"required_terms\": [\n    \"https://agentv.dev/docs/evaluation/sdk/\",\n    \"\
-    TS code-grader\"\n  ],\n  \"exact_terms\": [\n    \"https://agentv.dev/docs/evaluation/sdk/\"\n  ],\n  \"ordered_terms\"\
+  expected_output: "{\n  \"scenario\": \"url-query-fragment\",\n  \"caveman_baseline\": \"Reviewer link: `https://agentv.dev/docs/evaluation/sdk/?utm=1#section`;\
+    \ verify TS code-grader example.\",\n  \"required_terms\": [\n    \"https://agentv.dev/docs/evaluation/sdk/?utm=1#section\",\n    \"\
+    TS code-grader\"\n  ],\n  \"exact_terms\": [\n    \"https://agentv.dev/docs/evaluation/sdk/?utm=1#section\"\n  ],\n  \"ordered_terms\"\
     : [],\n  \"forbidden_terms\": [],\n  \"required_patterns\": [],\n  \"forbidden_patterns\": [],\n  \"max_token_ratio\"\
     : 1,\n  \"min_fact_score\": 1,\n  \"caveman_tokens\": 34\n}\n"
   assertions:

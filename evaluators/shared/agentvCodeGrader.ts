@@ -137,7 +137,10 @@ function ratio(hitCount: number, total: number): number {
 }
 
 function orderedScore(output: string, terms: string[]): number {
-  if (terms.length <= 1) return 1;
+  if (terms.length === 0) return 1;
+  if (terms.length === 1) {
+    return containsTerm(output, terms[0]) ? 1 : 0;
+  }
   const lower = output.toLowerCase();
   let cursor = -1;
   for (const term of terms) {
