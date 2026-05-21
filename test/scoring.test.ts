@@ -20,8 +20,8 @@ const baseCase: BenchmarkCase = {
 };
 
 describe('scoreBenchmarkOutput', () => {
-  it('scores full retention and no leakage', () => {
-    const score = scoreBenchmarkOutput(baseCase, 'alpha beta Exact Error first second third p95 184ms {"status":"ok"}');
+  it('scores full retention and no leakage', async () => {
+    const score = await scoreBenchmarkOutput(baseCase, 'alpha beta Exact Error first second third p95 184ms {"status":"ok"}');
 
     expect(score.requiredTermRetentionScore).toBe(1);
     expect(score.exactTermRetentionScore).toBe(1);
@@ -30,11 +30,12 @@ describe('scoreBenchmarkOutput', () => {
     expect(score.requiredPatternScore).toBe(1);
     expect(score.forbiddenPatternScore).toBe(1);
     expect(score.jsonFactRetentionScore).toBe(1);
+    expect(score.autoevalsFactScore).toBe(1);
     expect(score.overallScore).toBe(1);
   });
 
-  it('detects missing facts, exact drift, order drift, and forbidden leakage', () => {
-    const score = scoreBenchmarkOutput(baseCase, 'alpha exact error second first secret p95 slow {"status":"failed"} 0 vulnerabilities');
+  it('detects missing facts, exact drift, order drift, and forbidden leakage', async () => {
+    const score = await scoreBenchmarkOutput(baseCase, 'alpha exact error second first secret p95 slow {"status":"failed"} 0 vulnerabilities');
 
     expect(score.requiredTermRetentionScore).toBe(0.5);
     expect(score.exactTermRetentionScore).toBe(0);
@@ -43,16 +44,17 @@ describe('scoreBenchmarkOutput', () => {
     expect(score.requiredPatternScore).toBe(0);
     expect(score.forbiddenPatternScore).toBe(0);
     expect(score.jsonFactRetentionScore).toBe(0);
+    expect(score.autoevalsFactScore).toBeLessThan(1);
     expect(score.failures.length).toBeGreaterThanOrEqual(6);
   });
 
-  it('treats malformed patterns as failures instead of throwing', () => {
+  it('treats malformed patterns as failures instead of throwing', async () => {
     const benchmark = {
       ...baseCase,
       expect: { ...baseCase.expect, requiredPatterns: ['([unterminated'], forbiddenPatterns: ['([unterminated'] }
     };
 
-    const score = scoreBenchmarkOutput(benchmark, 'alpha beta Exact Error first second third {"status":"ok"}');
+    const score = await scoreBenchmarkOutput(benchmark, 'alpha beta Exact Error first second third {"status":"ok"}');
 
     expect(score.requiredPatternScore).toBe(0);
     expect(score.forbiddenPatternScore).toBe(0);

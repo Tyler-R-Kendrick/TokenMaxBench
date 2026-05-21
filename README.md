@@ -2,7 +2,7 @@
 
 Framework-neutral benchmarks for measuring token-reduction agent setups.
 
-This repo starts with copied UTK benchmark assets under `vendor/utk-evals` for provenance. The active harness uses neutral benchmark cases in `src/fixtures.ts` and records metrics instead of asserting that one framework beats another.
+Active benchmark workloads live in `evals/benchmarks.ts`. The harness runs those workloads and records scorecards instead of asserting that one framework beats another.
 
 ## Providers
 
@@ -11,6 +11,8 @@ This repo starts with copied UTK benchmark assets under `vendor/utk-evals` for p
 - `codex`: uses `@openai/codex-sdk` with ambient Codex auth.
 
 Default setup is empty for all real providers: no skills, no tools, no agent instructions, no env overrides, no working-directory fixtures.
+
+Agent-eval library surface matches the UTK eval stack: `autoevals` for scoring and `@toon-format/toon` for TOON artifact compatibility.
 
 ## Commands
 
@@ -24,8 +26,10 @@ npm run build
 Dry run:
 
 ```bash
-npm run bench -- --provider mock --output reports/mock.json
+npm run bench -- --provider mock
 ```
+
+Benchmark runs write canonical latest results to `results/latest/scorecard.json` and `results/latest/scorecard.md` by default.
 
 Live smoke runs are opt-in:
 
@@ -37,6 +41,6 @@ $env:TOKENMAXBENCH_LIVE_CODEX='1'; npm test -- --run test/live.test.ts
 Live benchmark:
 
 ```bash
-npm run bench:github-copilot -- --output reports/github-copilot.json
-npm run bench:codex -- --output reports/codex.json
+npm run bench:github-copilot
+npm run bench:codex
 ```

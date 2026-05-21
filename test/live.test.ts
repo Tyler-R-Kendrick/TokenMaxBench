@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { BENCHMARK_CASES } from '../src/fixtures.js';
+import { BENCHMARK_CASES } from '../evals/benchmarks.js';
 import { createCodexProvider } from '../src/providers/codexProvider.js';
 import { createGitHubCopilotProvider } from '../src/providers/githubCopilotProvider.js';
 import { runBenchmarks } from '../src/runner.js';

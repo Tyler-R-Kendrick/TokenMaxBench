@@ -1,4 +1,4 @@
-import type { BenchmarkCase } from './types.js';
+import type { BenchmarkCase } from '../src/types.js';
 
 export const BENCHMARK_CASES: BenchmarkCase[] = [
   {
@@ -13,7 +13,7 @@ export const BENCHMARK_CASES: BenchmarkCase[] = [
     metadata: {
       sourceSuite: 'rtk',
       sourceFixture: 'shell-git-status',
-      sourcePath: 'vendor/utk-evals/fixtures/rtkParityFixtures.ts'
+      sourcePath: 'evals/benchmarks.ts#shell-git-status'
     }
   },
   {
@@ -29,7 +29,7 @@ export const BENCHMARK_CASES: BenchmarkCase[] = [
     metadata: {
       sourceSuite: 'rtk',
       sourceFixture: 'shell-pytest-failure',
-      sourcePath: 'vendor/utk-evals/fixtures/rtkParityFixtures.ts'
+      sourcePath: 'evals/benchmarks.ts#shell-pytest-failure'
     }
   },
   {
@@ -47,7 +47,7 @@ export const BENCHMARK_CASES: BenchmarkCase[] = [
     metadata: {
       sourceSuite: 'compresr',
       sourceFixture: 'provider-adapter-openai-tool-call',
-      sourcePath: 'vendor/utk-evals/fixtures/compresrParityFixtures.ts'
+      sourcePath: 'evals/benchmarks.ts#provider-adapter-openai-tool-call'
     }
   },
   {
@@ -63,7 +63,7 @@ export const BENCHMARK_CASES: BenchmarkCase[] = [
     metadata: {
       sourceSuite: 'compresr',
       sourceFixture: 'heuristic-chunking-boundary',
-      sourcePath: 'vendor/utk-evals/fixtures/compresrParityFixtures.ts'
+      sourcePath: 'evals/benchmarks.ts#chunking-exact-error'
     }
   },
   {
@@ -79,7 +79,7 @@ export const BENCHMARK_CASES: BenchmarkCase[] = [
     metadata: {
       sourceSuite: 'caveman',
       sourceFixture: 'ci-failure-triage',
-      sourcePath: 'vendor/utk-evals/fixtures/cavemanParityFixtures.ts'
+      sourcePath: 'evals/benchmarks.ts#ci-failure-triage'
     }
   },
   {
@@ -96,7 +96,7 @@ export const BENCHMARK_CASES: BenchmarkCase[] = [
     metadata: {
       sourceSuite: 'caveman',
       sourceFixture: 'destructive-migration-warning',
-      sourcePath: 'vendor/utk-evals/fixtures/cavemanParityFixtures.ts'
+      sourcePath: 'evals/benchmarks.ts#destructive-migration-warning'
     }
   },
   {
@@ -111,7 +111,7 @@ export const BENCHMARK_CASES: BenchmarkCase[] = [
     metadata: {
       sourceSuite: 'leanctx',
       sourceFixture: 'tool-vitest-fail',
-      sourcePath: 'vendor/utk-evals/fixtures/leanCtxCopilotFixtures.ts'
+      sourcePath: 'evals/benchmarks.ts#leanctx-copilot-tool-output'
     }
   },
   {
@@ -127,7 +127,7 @@ export const BENCHMARK_CASES: BenchmarkCase[] = [
     metadata: {
       sourceSuite: 'bash',
       sourceFixture: 'ripgrep-typescript-symbol',
-      sourcePath: 'vendor/utk-evals/fixtures/bashRewriteFixtures.ts'
+      sourcePath: 'evals/benchmarks.ts#bash-ripgrep-command'
     }
   }
 ];

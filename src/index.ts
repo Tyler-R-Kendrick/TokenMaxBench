@@ -1,4 +1,4 @@
-export * from './fixtures.js';
+export * from '../evals/benchmarks.js';
 export * from './report.js';
 export * from './runner.js';
 export * from './scoring.js';

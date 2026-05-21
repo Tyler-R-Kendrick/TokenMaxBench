@@ -77,6 +77,7 @@ export type BenchmarkScores = {
   requiredPatternScore: number;
   forbiddenPatternScore: number;
   jsonFactRetentionScore: number;
+  autoevalsFactScore: number;
   overallScore: number;
   failures: string[];
 };

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { BENCHMARK_CASES, createBenchmarkPrompt } from '../src/fixtures.js';
+import { BENCHMARK_CASES, createBenchmarkPrompt } from '../evals/benchmarks.js';
 
 describe('neutral benchmark cases', () => {
   it('duplicates UTK benchmark themes without framework pass/fail baselines', () => {
@@ -12,6 +12,7 @@ describe('neutral benchmark cases', () => {
       expect(benchmark.input.length).toBeGreaterThan(0);
       expect(benchmark.expect.requiredTerms.length + benchmark.expect.jsonFacts.length).toBeGreaterThan(0);
       expect(benchmark.metadata.sourceSuite).toMatch(/rtk|compresr|caveman|leanctx|bash/);
+      expect(benchmark.metadata.sourcePath).toMatch(/^evals\/benchmarks\.ts#/);
       expect(benchmark.metadata.frameworkBaseline).toBeUndefined();
     }
   });

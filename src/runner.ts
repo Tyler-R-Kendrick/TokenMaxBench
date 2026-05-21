@@ -1,4 +1,4 @@
-import { createBenchmarkPrompt } from './fixtures.js';
+import { createBenchmarkPrompt } from '../evals/benchmarks.js';
 import { scoreBenchmarkOutput } from './scoring.js';
 import { byteLength, estimateTokens } from './tokens.js';
 import type { BenchmarkResult, BenchmarkRunConfig, Scorecard } from './types.js';
@@ -12,7 +12,7 @@ export async function runBenchmarks(config: BenchmarkRunConfig): Promise<Scoreca
     const startedAt = performance.now();
     const providerResult = await config.provider.run({ case: benchmark, prompt, runId });
     const latencyMs = Math.round(performance.now() - startedAt);
-    const scores = scoreBenchmarkOutput(benchmark, providerResult.output);
+    const scores = await scoreBenchmarkOutput(benchmark, providerResult.output);
     results.push({
       id: benchmark.id,
       title: benchmark.title,

@@ -1,6 +1,7 @@
+import { JSONDiff } from 'autoevals';
 import type { BenchmarkCase, BenchmarkScores, JsonFact } from './types.js';
 
-export function scoreBenchmarkOutput(benchmark: BenchmarkCase, output: string): BenchmarkScores {
+export async function scoreBenchmarkOutput(benchmark: BenchmarkCase, output: string): Promise<BenchmarkScores> {
   const requiredTermRetentionScore = ratio(countHits(benchmark.expect.requiredTerms, (term) => containsTerm(output, term)), benchmark.expect.requiredTerms.length);
   const exactTermRetentionScore = ratio(countHits(benchmark.expect.exactTerms ?? [], (term) => output.includes(term)), benchmark.expect.exactTerms?.length ?? 0);
   const orderedTermScore = orderedScore(output, benchmark.expect.orderedTerms ?? []);
@@ -8,6 +9,7 @@ export function scoreBenchmarkOutput(benchmark: BenchmarkCase, output: string): 
   const requiredPatternScore = ratio(countHits(benchmark.expect.requiredPatterns ?? [], (pattern) => safeRegexTest(pattern, output)), benchmark.expect.requiredPatterns?.length ?? 0);
   const forbiddenPatternScore = forbiddenPatternsScore(output, benchmark.expect.forbiddenPatterns ?? []);
   const jsonFactRetentionScore = ratio(countHits(benchmark.expect.jsonFacts, (fact) => jsonFactMatches(output, fact)), benchmark.expect.jsonFacts.length);
+  const autoevalsFactScore = await scoreAutoevalsFacts(benchmark, output);
 
   const parts = [
     requiredTermRetentionScore,
@@ -16,7 +18,8 @@ export function scoreBenchmarkOutput(benchmark: BenchmarkCase, output: string): 
     forbiddenLeakageScore,
     requiredPatternScore,
     forbiddenPatternScore,
-    jsonFactRetentionScore
+    jsonFactRetentionScore,
+    autoevalsFactScore
   ];
   const failures = buildFailures({
     requiredTermRetentionScore,
@@ -25,7 +28,8 @@ export function scoreBenchmarkOutput(benchmark: BenchmarkCase, output: string): 
     forbiddenLeakageScore,
     requiredPatternScore,
     forbiddenPatternScore,
-    jsonFactRetentionScore
+    jsonFactRetentionScore,
+    autoevalsFactScore
   });
 
   return {
@@ -36,6 +40,7 @@ export function scoreBenchmarkOutput(benchmark: BenchmarkCase, output: string): 
     requiredPatternScore,
     forbiddenPatternScore,
     jsonFactRetentionScore,
+    autoevalsFactScore,
     overallScore: round3(parts.reduce((sum, value) => sum + value, 0) / parts.length),
     failures
   };
@@ -99,6 +104,34 @@ function jsonFactMatches(output: string, fact: JsonFact): boolean {
     }
   }
   return false;
+}
+
+async function scoreAutoevalsFacts(benchmark: BenchmarkCase, output: string): Promise<number> {
+  const expected = buildAutoevalsFactVector(benchmark, () => true);
+  if (Object.keys(expected.requiredTerms).length === 0
+    && Object.keys(expected.exactTerms).length === 0
+    && Object.keys(expected.jsonFacts).length === 0) {
+    return 1;
+  }
+
+  const actual = buildAutoevalsFactVector(benchmark, (kind, value) => {
+    if (kind === 'requiredTerms') return containsTerm(output, value);
+    if (kind === 'exactTerms') return output.includes(value);
+    return jsonFactMatches(output, JSON.parse(value) as JsonFact);
+  });
+  const score = await JSONDiff({ output: actual, expected, preserveStrings: true });
+  return round3(score.score ?? 0);
+}
+
+function buildAutoevalsFactVector(
+  benchmark: BenchmarkCase,
+  retained: (kind: 'requiredTerms' | 'exactTerms' | 'jsonFacts', value: string) => boolean
+): Record<'requiredTerms' | 'exactTerms' | 'jsonFacts', Record<string, boolean>> {
+  return {
+    requiredTerms: Object.fromEntries(benchmark.expect.requiredTerms.map((term) => [term, retained('requiredTerms', term)])),
+    exactTerms: Object.fromEntries((benchmark.expect.exactTerms ?? []).map((term) => [term, retained('exactTerms', term)])),
+    jsonFacts: Object.fromEntries(benchmark.expect.jsonFacts.map((fact) => [JSON.stringify(fact), retained('jsonFacts', JSON.stringify(fact))]))
+  };
 }
 
 function parseJsonCandidates(output: string): unknown[] {

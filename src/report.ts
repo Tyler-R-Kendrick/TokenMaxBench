@@ -6,8 +6,9 @@ export function renderMarkdownReport(scorecard: Scorecard): string {
   ));
 
   return [
-    `# TokenMaxBench ${scorecard.provider.label} Report`,
+    '# TokenMaxBench Scorecard',
     '',
+    `Provider: ${scorecard.provider.label}`,
     `Run: \`${scorecard.runId}\``,
     '',
     `Cases: ${scorecard.summary.caseCount}`,

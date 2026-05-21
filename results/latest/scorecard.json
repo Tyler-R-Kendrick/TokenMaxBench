@@ -1,0 +1,256 @@
+{
+  "runId": "run-2026-05-21T19-11-11-728Z",
+  "createdAt": "2026-05-21T19:11:11.741Z",
+  "provider": {
+    "id": "mock",
+    "label": "Mock Provider",
+    "setup": {
+      "skills": [],
+      "tools": [],
+      "agentInstructions": [],
+      "env": {},
+      "workingDirectoryFixtures": []
+    }
+  },
+  "results": [
+    {
+      "id": "shell-git-status",
+      "title": "Git status summary",
+      "category": "Shell output",
+      "output": "dry run output",
+      "latencyMs": 1,
+      "inputTokens": 109,
+      "outputTokens": 4,
+      "totalTokens": 113,
+      "outputChars": 14,
+      "outputBytes": 14,
+      "providerMetadata": {
+        "deterministic": true
+      },
+      "requiredTermRetentionScore": 0,
+      "exactTermRetentionScore": 1,
+      "orderedTermScore": 1,
+      "forbiddenLeakageScore": 1,
+      "requiredPatternScore": 1,
+      "forbiddenPatternScore": 1,
+      "jsonFactRetentionScore": 1,
+      "autoevalsFactScore": 0.733,
+      "overallScore": 0.842,
+      "failures": [
+        "requiredTermRetentionScore=0",
+        "autoevalsFactScore=0.733"
+      ]
+    },
+    {
+      "id": "shell-pytest-failure",
+      "title": "Pytest failure summary",
+      "category": "Test output",
+      "output": "dry run output",
+      "latencyMs": 0,
+      "inputTokens": 145,
+      "outputTokens": 4,
+      "totalTokens": 149,
+      "outputChars": 14,
+      "outputBytes": 14,
+      "providerMetadata": {
+        "deterministic": true
+      },
+      "requiredTermRetentionScore": 0,
+      "exactTermRetentionScore": 0,
+      "orderedTermScore": 1,
+      "forbiddenLeakageScore": 1,
+      "requiredPatternScore": 1,
+      "forbiddenPatternScore": 1,
+      "jsonFactRetentionScore": 1,
+      "autoevalsFactScore": 0.467,
+      "overallScore": 0.683,
+      "failures": [
+        "requiredTermRetentionScore=0",
+        "exactTermRetentionScore=0",
+        "autoevalsFactScore=0.467"
+      ]
+    },
+    {
+      "id": "provider-adapter-openai-tool-call",
+      "title": "OpenAI tool-call adapter facts",
+      "category": "Provider adapters",
+      "output": "dry run output",
+      "latencyMs": 0,
+      "inputTokens": 109,
+      "outputTokens": 4,
+      "totalTokens": 113,
+      "outputChars": 14,
+      "outputBytes": 14,
+      "providerMetadata": {
+        "deterministic": true
+      },
+      "requiredTermRetentionScore": 0,
+      "exactTermRetentionScore": 1,
+      "orderedTermScore": 1,
+      "forbiddenLeakageScore": 1,
+      "requiredPatternScore": 1,
+      "forbiddenPatternScore": 1,
+      "jsonFactRetentionScore": 0,
+      "autoevalsFactScore": 0.467,
+      "overallScore": 0.683,
+      "failures": [
+        "requiredTermRetentionScore=0",
+        "jsonFactRetentionScore=0",
+        "autoevalsFactScore=0.467"
+      ]
+    },
+    {
+      "id": "chunking-exact-error",
+      "title": "Exact Windows error retention",
+      "category": "Exact diagnostics",
+      "output": "dry run output",
+      "latencyMs": 0,
+      "inputTokens": 131,
+      "outputTokens": 4,
+      "totalTokens": 135,
+      "outputChars": 14,
+      "outputBytes": 14,
+      "providerMetadata": {
+        "deterministic": true
+      },
+      "requiredTermRetentionScore": 0,
+      "exactTermRetentionScore": 0,
+      "orderedTermScore": 1,
+      "forbiddenLeakageScore": 1,
+      "requiredPatternScore": 1,
+      "forbiddenPatternScore": 1,
+      "jsonFactRetentionScore": 1,
+      "autoevalsFactScore": 0.467,
+      "overallScore": 0.683,
+      "failures": [
+        "requiredTermRetentionScore=0",
+        "exactTermRetentionScore=0",
+        "autoevalsFactScore=0.467"
+      ]
+    },
+    {
+      "id": "ci-failure-triage",
+      "title": "CI failure triage",
+      "category": "Technical summary",
+      "output": "dry run output",
+      "latencyMs": 0,
+      "inputTokens": 178,
+      "outputTokens": 4,
+      "totalTokens": 182,
+      "outputChars": 14,
+      "outputBytes": 14,
+      "providerMetadata": {
+        "deterministic": true
+      },
+      "requiredTermRetentionScore": 0,
+      "exactTermRetentionScore": 0,
+      "orderedTermScore": 1,
+      "forbiddenLeakageScore": 1,
+      "requiredPatternScore": 1,
+      "forbiddenPatternScore": 1,
+      "jsonFactRetentionScore": 1,
+      "autoevalsFactScore": 0.467,
+      "overallScore": 0.683,
+      "failures": [
+        "requiredTermRetentionScore=0",
+        "exactTermRetentionScore=0",
+        "autoevalsFactScore=0.467"
+      ]
+    },
+    {
+      "id": "destructive-migration-warning",
+      "title": "Destructive migration order",
+      "category": "Safety clarity",
+      "output": "dry run output",
+      "latencyMs": 0,
+      "inputTokens": 144,
+      "outputTokens": 4,
+      "totalTokens": 148,
+      "outputChars": 14,
+      "outputBytes": 14,
+      "providerMetadata": {
+        "deterministic": true
+      },
+      "requiredTermRetentionScore": 0,
+      "exactTermRetentionScore": 1,
+      "orderedTermScore": 0,
+      "forbiddenLeakageScore": 1,
+      "requiredPatternScore": 1,
+      "forbiddenPatternScore": 1,
+      "jsonFactRetentionScore": 1,
+      "autoevalsFactScore": 0.733,
+      "overallScore": 0.717,
+      "failures": [
+        "requiredTermRetentionScore=0",
+        "orderedTermScore=0",
+        "autoevalsFactScore=0.733"
+      ]
+    },
+    {
+      "id": "leanctx-copilot-tool-output",
+      "title": "Copilot tool output retention",
+      "category": "Copilot tool output",
+      "output": "dry run output",
+      "latencyMs": 0,
+      "inputTokens": 151,
+      "outputTokens": 4,
+      "totalTokens": 155,
+      "outputChars": 14,
+      "outputBytes": 14,
+      "providerMetadata": {
+        "deterministic": true
+      },
+      "requiredTermRetentionScore": 0,
+      "exactTermRetentionScore": 1,
+      "orderedTermScore": 1,
+      "forbiddenLeakageScore": 1,
+      "requiredPatternScore": 1,
+      "forbiddenPatternScore": 1,
+      "jsonFactRetentionScore": 1,
+      "autoevalsFactScore": 0.733,
+      "overallScore": 0.842,
+      "failures": [
+        "requiredTermRetentionScore=0",
+        "autoevalsFactScore=0.733"
+      ]
+    },
+    {
+      "id": "bash-ripgrep-command",
+      "title": "Bash command rewrite",
+      "category": "Command parsing",
+      "output": "dry run output",
+      "latencyMs": 0,
+      "inputTokens": 120,
+      "outputTokens": 4,
+      "totalTokens": 124,
+      "outputChars": 14,
+      "outputBytes": 14,
+      "providerMetadata": {
+        "deterministic": true
+      },
+      "requiredTermRetentionScore": 0,
+      "exactTermRetentionScore": 0,
+      "orderedTermScore": 1,
+      "forbiddenLeakageScore": 1,
+      "requiredPatternScore": 1,
+      "forbiddenPatternScore": 1,
+      "jsonFactRetentionScore": 1,
+      "autoevalsFactScore": 0.467,
+      "overallScore": 0.683,
+      "failures": [
+        "requiredTermRetentionScore=0",
+        "exactTermRetentionScore=0",
+        "autoevalsFactScore=0.467"
+      ]
+    }
+  ],
+  "summary": {
+    "caseCount": 8,
+    "totalInputTokens": 1087,
+    "totalOutputTokens": 32,
+    "totalTokens": 1119,
+    "averageLatencyMs": 0.125,
+    "averageOverallScore": 0.727,
+    "failedCaseCount": 8
+  }
+}
