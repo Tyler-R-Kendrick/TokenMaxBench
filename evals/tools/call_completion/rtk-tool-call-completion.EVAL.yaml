@@ -1,0 +1,1054 @@
+name: evals-tools-call-completion-rtk-tool-call-completion
+version: '1.0'
+description: RTK-style tool output cases for call completion fidelity.
+metadata:
+  layered_evaluator_surface: true
+assertions:
+- name: rtk-tool-budget
+  type: execution-metrics
+  max_tool_calls: 20
+  max_tokens: 8000
+  max_duration_ms: 180000
+  weight: 0.25
+tests:
+- id: shell-git-status
+  input:
+  - role: user
+    content: Summarize dirty worktree state without losing modified and untracked files.
+  expected_output: "{\n  \"scenario\": \"shell-git-status\",\n  \"tool_id\": \"shell.git.status\",\n  \"required_facts\":\
+    \ [\n    {\n      \"kind\": \"literal\",\n      \"value\": \"M README.md\"\n    },\n    {\n      \"kind\": \"literal\"\
+    ,\n      \"value\": \"rtkParityFixtures.ts\"\n    }\n  ],\n  \"rtk_supported\": true,\n  \"rtk_baseline_bytes\": 81,\n\
+    \  \"rtk_baseline_tokens\": 21,\n  \"rtk_notes\": null\n}\n"
+  assertions:
+  - name: rtk-tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: shell-git-diff
+  input:
+  - role: user
+    content: Compress patch output while preserving added and removed lines.
+  expected_output: "{\n  \"scenario\": \"shell-git-diff\",\n  \"tool_id\": \"shell.git.diff\",\n  \"required_facts\": [\n\
+    \    {\n      \"kind\": \"literal\",\n      \"value\": \"shell-git-diff comparative metrics\"\n    },\n    {\n      \"\
+    kind\": \"literal\",\n      \"value\": \"placeholder parity list\"\n    }\n  ],\n  \"rtk_supported\": true,\n  \"rtk_baseline_bytes\"\
+    : 89,\n  \"rtk_baseline_tokens\": 23,\n  \"rtk_notes\": null\n}\n"
+  assertions:
+  - name: rtk-tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: shell-rg
+  input:
+  - role: user
+    content: Compress code search hits while preserving relevant file names.
+  expected_output: "{\n  \"scenario\": \"shell-rg\",\n  \"tool_id\": \"shell.rg\",\n  \"required_facts\": [\n    {\n     \
+    \ \"kind\": \"literal\",\n      \"value\": \"toolMediator.ts\"\n    },\n    {\n      \"kind\": \"literal\",\n      \"\
+    value\": \"copilotHook.ts\"\n    }\n  ],\n  \"rtk_supported\": true,\n  \"rtk_baseline_bytes\": 69,\n  \"rtk_baseline_tokens\"\
+    : 18,\n  \"rtk_notes\": null\n}\n"
+  assertions:
+  - name: rtk-tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: shell-vitest
+  input:
+  - role: user
+    content: Summarize passing test output with file and test counts.
+  expected_output: "{\n  \"scenario\": \"shell-vitest\",\n  \"tool_id\": \"shell.vitest\",\n  \"required_facts\": [\n    {\n\
+    \      \"kind\": \"literal\",\n      \"value\": \"Test Files 2 passed (2)\"\n    },\n    {\n      \"kind\": \"literal\"\
+    ,\n      \"value\": \"Tests 3 passed (3)\"\n    }\n  ],\n  \"rtk_supported\": true,\n  \"rtk_baseline_bytes\": 38,\n \
+    \ \"rtk_baseline_tokens\": 10,\n  \"rtk_notes\": null\n}\n"
+  assertions:
+  - name: rtk-tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: shell-tsc
+  input:
+  - role: user
+    content: Represent clean TypeScript output without inventing diagnostics.
+  expected_output: "{\n  \"scenario\": \"shell-tsc\",\n  \"tool_id\": \"shell.tsc\",\n  \"required_facts\": [\n    {\n   \
+    \   \"kind\": \"literal\",\n      \"value\": \"tokenmaxbench evals@0.1.0 typecheck\"\n    },\n    {\n      \"kind\": \"\
+    literal\",\n      \"value\": \"tsc -p tsconfig.json --noEmit\"\n    }\n  ],\n  \"rtk_supported\": true,\n  \"rtk_baseline_bytes\"\
+    : 84,\n  \"rtk_baseline_tokens\": 21,\n  \"rtk_notes\": null\n}\n"
+  assertions:
+  - name: rtk-tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: large-json-object
+  input:
+  - role: user
+    content: Compress large object payloads while retaining cursor and first record.
+  expected_output: "{\n  \"scenario\": \"large-json-object\",\n  \"tool_id\": \"tool.large-object\",\n  \"required_facts\"\
+    : [\n    {\n      \"kind\": \"jsonPath\",\n      \"path\": \"$.users[0].name\",\n      \"expected\": \"user-1\"\n    },\n\
+    \    {\n      \"kind\": \"jsonPath\",\n      \"path\": \"$.nextCursor\",\n      \"expected\": \"cursor-12\"\n    }\n \
+    \ ],\n  \"rtk_supported\": false,\n  \"rtk_baseline_bytes\": 0,\n  \"rtk_baseline_tokens\": 106,\n  \"rtk_notes\": \"\
+    No direct RTK equivalent; compare UTK compact output against raw-output savings threshold.\"\n}\n"
+  assertions:
+  - name: rtk-tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: large-json-array
+  input:
+  - role: user
+    content: Compress long arrays while retaining sentinel first and failed last events.
+  expected_output: "{\n  \"scenario\": \"large-json-array\",\n  \"tool_id\": \"tool.large-array\",\n  \"required_facts\":\
+    \ [\n    {\n      \"kind\": \"literal\",\n      \"value\": \"\\\"status\\\": \\\"failed\\\"\"\n    },\n    {\n      \"\
+    kind\": \"literal\",\n      \"value\": \"\\\"eventId\\\": \\\"evt-0\\\"\"\n    }\n  ],\n  \"rtk_supported\": false,\n\
+    \  \"rtk_baseline_bytes\": 0,\n  \"rtk_baseline_tokens\": 377,\n  \"rtk_notes\": \"No direct RTK equivalent; compare UTK\
+    \ compact output against raw-output savings threshold.\"\n}\n"
+  assertions:
+  - name: rtk-tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: deeply-nested-response
+  input:
+  - role: user
+    content: Compress nested workflow data while preserving deep artifact reference.
+  expected_output: "{\n  \"scenario\": \"deeply-nested-response\",\n  \"tool_id\": \"tool.deep-response\",\n  \"required_facts\"\
+    : [\n    {\n      \"kind\": \"jsonPath\",\n      \"path\": \"$.repository.name\",\n      \"expected\": \"universal-token-killer\"\
+    \n    },\n    {\n      \"kind\": \"jsonPath\",\n      \"path\": \"$.repository.workflows[0].runs[9].artifacts[0].name\"\
+    ,\n      \"expected\": \"coverage\"\n    }\n  ],\n  \"rtk_supported\": false,\n  \"rtk_baseline_bytes\": 0,\n  \"rtk_baseline_tokens\"\
+    : 207,\n  \"rtk_notes\": \"No direct RTK equivalent; compare UTK compact output against raw-output savings threshold.\"\
+    \n}\n"
+  assertions:
+  - name: rtk-tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: repeated-text-logs
+  input:
+  - role: user
+    content: Compress repeated log lines while retaining first and last batch facts.
+  expected_output: "{\n  \"scenario\": \"repeated-text-logs\",\n  \"tool_id\": \"tool.logs\",\n  \"required_facts\": [\n \
+    \   {\n      \"kind\": \"literal\",\n      \"value\": \"worker-0 processed batch-0\"\n    },\n    {\n      \"kind\": \"\
+    literal\",\n      \"value\": \"processed batch-23 status=ok\"\n    }\n  ],\n  \"rtk_supported\": false,\n  \"rtk_baseline_bytes\"\
+    : 0,\n  \"rtk_baseline_tokens\": 137,\n  \"rtk_notes\": \"No direct RTK equivalent; compare UTK compact output against\
+    \ raw-output savings threshold.\"\n}\n"
+  assertions:
+  - name: rtk-tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: tabular-text
+  input:
+  - role: user
+    content: Compress text tables while preserving row associations.
+  expected_output: "{\n  \"scenario\": \"tabular-text\",\n  \"tool_id\": \"tool.table\",\n  \"required_facts\": [\n    {\n\
+    \      \"kind\": \"literal\",\n      \"value\": \"core       pass\"\n    },\n    {\n      \"kind\": \"literal\",\n   \
+    \   \"value\": \"evals      pass\"\n    }\n  ],\n  \"rtk_supported\": false,\n  \"rtk_baseline_bytes\": 0,\n  \"rtk_baseline_tokens\"\
+    : 18,\n  \"rtk_notes\": \"No direct RTK equivalent; compare UTK compact output against raw-output savings threshold.\"\
+    \n}\n"
+  assertions:
+  - name: rtk-tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: markdown-report
+  input:
+  - role: user
+    content: Compress report prose while retaining findings.
+  expected_output: "{\n  \"scenario\": \"markdown-report\",\n  \"tool_id\": \"tool.markdown-report\",\n  \"required_facts\"\
+    : [\n    {\n      \"kind\": \"literal\",\n      \"value\": \"TOON serializer is enabled by default\"\n    },\n    {\n\
+    \      \"kind\": \"literal\",\n      \"value\": \"Copilot hook mediates observable tool output\"\n    }\n  ],\n  \"rtk_supported\"\
+    : false,\n  \"rtk_baseline_bytes\": 0,\n  \"rtk_baseline_tokens\": 10,\n  \"rtk_notes\": \"No direct RTK equivalent; compare\
+    \ UTK compact output against raw-output savings threshold.\"\n}\n"
+  assertions:
+  - name: rtk-tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: arbitrary-structured-tool-output
+  input:
+  - role: user
+    content: Compress arbitrary symbol index output while retaining entry path and symbol.
+  expected_output: "{\n  \"scenario\": \"arbitrary-structured-tool-output\",\n  \"tool_id\": \"tool.structured\",\n  \"required_facts\"\
+    : [\n    {\n      \"kind\": \"jsonPath\",\n      \"path\": \"$.result.entries[0].path\",\n      \"expected\": \"src/index.ts\"\
+    \n    },\n    {\n      \"kind\": \"jsonPath\",\n      \"path\": \"$.result.entries[0].symbols[1]\",\n      \"expected\"\
+    : \"loadUtkConfig\"\n    }\n  ],\n  \"rtk_supported\": false,\n  \"rtk_baseline_bytes\": 0,\n  \"rtk_baseline_tokens\"\
+    : 175,\n  \"rtk_notes\": \"No direct RTK equivalent; compare UTK compact output against raw-output savings threshold.\"\
+    \n}\n"
+  assertions:
+  - name: rtk-tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: shell-npm-audit
+  input:
+  - role: user
+    content: Compress npm audit output while preserving severity counts.
+  expected_output: "{\n  \"scenario\": \"shell-npm-audit\",\n  \"tool_id\": \"shell.npm.audit\",\n  \"required_facts\": [\n\
+    \    {\n      \"kind\": \"literal\",\n      \"value\": \"1 moderate severity vulnerability\"\n    },\n    {\n      \"\
+    kind\": \"literal\",\n      \"value\": \"0 critical vulnerabilities\"\n    }\n  ],\n  \"rtk_supported\": true,\n  \"rtk_baseline_bytes\"\
+    : 71,\n  \"rtk_baseline_tokens\": 18,\n  \"rtk_notes\": null\n}\n"
+  assertions:
+  - name: rtk-tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: shell-pytest-failure
+  input:
+  - role: user
+    content: Compress pytest failure output while retaining failing test and assertion.
+  expected_output: "{\n  \"scenario\": \"shell-pytest-failure\",\n  \"tool_id\": \"shell.pytest\",\n  \"required_facts\":\
+    \ [\n    {\n      \"kind\": \"literal\",\n      \"value\": \"tests/test_router.py::test_schema_route\"\n    },\n    {\n\
+    \      \"kind\": \"literal\",\n      \"value\": \"expected schema shell.git-status.v1\"\n    }\n  ],\n  \"rtk_supported\"\
+    : true,\n  \"rtk_baseline_bytes\": 83,\n  \"rtk_baseline_tokens\": 21,\n  \"rtk_notes\": null\n}\n"
+  assertions:
+  - name: rtk-tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: shell-docker-ps
+  input:
+  - role: user
+    content: Compress docker ps table while preserving unhealthy container.
+  expected_output: "{\n  \"scenario\": \"shell-docker-ps\",\n  \"tool_id\": \"shell.docker.ps\",\n  \"required_facts\": [\n\
+    \    {\n      \"kind\": \"literal\",\n      \"value\": \"utk-worker-1\"\n    },\n    {\n      \"kind\": \"literal\",\n\
+    \      \"value\": \"unhealthy\"\n    }\n  ],\n  \"rtk_supported\": true,\n  \"rtk_baseline_bytes\": 50,\n  \"rtk_baseline_tokens\"\
+    : 13,\n  \"rtk_notes\": null\n}\n"
+  assertions:
+  - name: rtk-tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: shell-kubectl-pods
+  input:
+  - role: user
+    content: Compress kubectl pod table while retaining restart count and CrashLoopBackOff.
+  expected_output: "{\n  \"scenario\": \"shell-kubectl-pods\",\n  \"tool_id\": \"shell.kubectl.get-pods\",\n  \"required_facts\"\
+    : [\n    {\n      \"kind\": \"literal\",\n      \"value\": \"worker-6c44d9fbdf-9mxrs\"\n    },\n    {\n      \"kind\"\
+    : \"literal\",\n      \"value\": \"CrashLoopBackOff   7\"\n    }\n  ],\n  \"rtk_supported\": true,\n  \"rtk_baseline_bytes\"\
+    : 70,\n  \"rtk_baseline_tokens\": 18,\n  \"rtk_notes\": null\n}\n"
+  assertions:
+  - name: rtk-tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: shell-curl-headers
+  input:
+  - role: user
+    content: Compress curl headers while preserving throttle status and retry delay.
+  expected_output: "{\n  \"scenario\": \"shell-curl-headers\",\n  \"tool_id\": \"shell.curl.headers\",\n  \"required_facts\"\
+    : [\n    {\n      \"kind\": \"literal\",\n      \"value\": \"HTTP/2 429\"\n    },\n    {\n      \"kind\": \"literal\"\
+    ,\n      \"value\": \"retry-after: 120\"\n    }\n  ],\n  \"rtk_supported\": true,\n  \"rtk_baseline_bytes\": 62,\n  \"\
+    rtk_baseline_tokens\": 16,\n  \"rtk_notes\": null\n}\n"
+  assertions:
+  - name: rtk-tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: shell-du-sizes
+  input:
+  - role: user
+    content: Compress du output while preserving largest directory size.
+  expected_output: "{\n  \"scenario\": \"shell-du-sizes\",\n  \"tool_id\": \"shell.du\",\n  \"required_facts\": [\n    {\n\
+    \      \"kind\": \"literal\",\n      \"value\": \"184M\\tnode_modules\"\n    },\n    {\n      \"kind\": \"literal\",\n\
+    \      \"value\": \"2.4M\\t.utk\"\n    }\n  ],\n  \"rtk_supported\": true,\n  \"rtk_baseline_bytes\": 50,\n  \"rtk_baseline_tokens\"\
+    : 13,\n  \"rtk_notes\": null\n}\n"
+  assertions:
+  - name: rtk-tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: shell-rg-json-lines
+  input:
+  - role: user
+    content: Compress ripgrep JSON lines while retaining match path and line.
+  expected_output: "{\n  \"scenario\": \"shell-rg-json-lines\",\n  \"tool_id\": \"shell.rg.json\",\n  \"required_facts\":\
+    \ [\n    {\n      \"kind\": \"literal\",\n      \"value\": \"packages/evals/evals/rtk-parity-metrics.test.ts\"\n    },\n\
+    \    {\n      \"kind\": \"literal\",\n      \"value\": \"\\\"line_number\\\":54\"\n    }\n  ],\n  \"rtk_supported\": true,\n\
+    \  \"rtk_baseline_bytes\": 76,\n  \"rtk_baseline_tokens\": 19,\n  \"rtk_notes\": null\n}\n"
+  assertions:
+  - name: rtk-tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: shell-git-log-oneline
+  input:
+  - role: user
+    content: Compress git log output while preserving commit order and subjects.
+  expected_output: "{\n  \"scenario\": \"shell-git-log-oneline\",\n  \"tool_id\": \"shell.git.log\",\n  \"required_facts\"\
+    : [\n    {\n      \"kind\": \"literal\",\n      \"value\": \"9f8e7d6 add caveman parity benchmarks\"\n    },\n    {\n\
+    \      \"kind\": \"literal\",\n      \"value\": \"7c6b5a4 harden rtk metric helpers\"\n    }\n  ],\n  \"rtk_supported\"\
+    : true,\n  \"rtk_baseline_bytes\": 80,\n  \"rtk_baseline_tokens\": 20,\n  \"rtk_notes\": null\n}\n"
+  assertions:
+  - name: rtk-tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: sarif-results
+  input:
+  - role: user
+    content: Compress SARIF-like results while retaining rule id and affected file.
+  expected_output: "{\n  \"scenario\": \"sarif-results\",\n  \"tool_id\": \"tool.sarif\",\n  \"required_facts\": [\n    {\n\
+    \      \"kind\": \"jsonPath\",\n      \"path\": \"$.runs[0].results[0].ruleId\",\n      \"expected\": \"no-raw-leakage\"\
+    \n    },\n    {\n      \"kind\": \"jsonPath\",\n      \"path\": \"$.runs[0].results[0].locations[0].physicalLocation.artifactLocation.uri\"\
+    ,\n      \"expected\": \"packages/core/src/validation/leakage.ts\"\n    }\n  ],\n  \"rtk_supported\": false,\n  \"rtk_baseline_bytes\"\
+    : 0,\n  \"rtk_baseline_tokens\": 42,\n  \"rtk_notes\": \"No direct RTK equivalent; compare UTK compact output against\
+    \ raw-output savings threshold.\"\n}\n"
+  assertions:
+  - name: rtk-tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: junit-xml
+  input:
+  - role: user
+    content: Compress JUnit XML while retaining failing testcase and message.
+  expected_output: "{\n  \"scenario\": \"junit-xml\",\n  \"tool_id\": \"tool.junit-xml\",\n  \"required_facts\": [\n    {\n\
+    \      \"kind\": \"literal\",\n      \"value\": \"failures=\\\"1\\\"\"\n    },\n    {\n      \"kind\": \"literal\",\n\
+    \      \"value\": \"expected shell.git-status.v1\"\n    }\n  ],\n  \"rtk_supported\": false,\n  \"rtk_baseline_bytes\"\
+    : 0,\n  \"rtk_baseline_tokens\": 15,\n  \"rtk_notes\": \"No direct RTK equivalent; compare UTK compact output against\
+    \ raw-output savings threshold.\"\n}\n"
+  assertions:
+  - name: rtk-tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: csv-export
+  input:
+  - role: user
+    content: Compress CSV exports while retaining quoted fields.
+  expected_output: "{\n  \"scenario\": \"csv-export\",\n  \"tool_id\": \"tool.csv\",\n  \"required_facts\": [\n    {\n   \
+    \   \"kind\": \"literal\",\n      \"value\": \"1,\\\"Smith, Ada\\\",admin\"\n    },\n    {\n      \"kind\": \"literal\"\
+    ,\n      \"value\": \"3,\\\"Patel, Mira\\\",maintainer\"\n    }\n  ],\n  \"rtk_supported\": false,\n  \"rtk_baseline_bytes\"\
+    : 0,\n  \"rtk_baseline_tokens\": 7,\n  \"rtk_notes\": \"No direct RTK equivalent; compare UTK compact output against raw-output\
+    \ savings threshold.\"\n}\n"
+  assertions:
+  - name: rtk-tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: graphql-response
+  input:
+  - role: user
+    content: Compress GraphQL response while retaining typename and nested branch.
+  expected_output: "{\n  \"scenario\": \"graphql-response\",\n  \"tool_id\": \"tool.graphql\",\n  \"required_facts\": [\n\
+    \    {\n      \"kind\": \"jsonPath\",\n      \"path\": \"$.data.repository.__typename\",\n      \"expected\": \"Repository\"\
+    \n    },\n    {\n      \"kind\": \"jsonPath\",\n      \"path\": \"$.data.repository.defaultBranchRef.name\",\n      \"\
+    expected\": \"main\"\n    }\n  ],\n  \"rtk_supported\": false,\n  \"rtk_baseline_bytes\": 0,\n  \"rtk_baseline_tokens\"\
+    : 20,\n  \"rtk_notes\": \"No direct RTK equivalent; compare UTK compact output against raw-output savings threshold.\"\
+    \n}\n"
+  assertions:
+  - name: rtk-tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: openapi-fragment
+  input:
+  - role: user
+    content: Compress OpenAPI fragments while retaining method and operation id.
+  expected_output: "{\n  \"scenario\": \"openapi-fragment\",\n  \"tool_id\": \"tool.openapi\",\n  \"required_facts\": [\n\
+    \    {\n      \"kind\": \"jsonPath\",\n      \"path\": \"$.paths./v1/mediate.post.operationId\",\n      \"expected\":\
+    \ \"mediateToolOutput\"\n    },\n    {\n      \"kind\": \"jsonPath\",\n      \"path\": \"$.paths./v1/mediate.post.responses.200.description\"\
+    ,\n      \"expected\": \"Mediated response\"\n    }\n  ],\n  \"rtk_supported\": false,\n  \"rtk_baseline_bytes\": 0,\n\
+    \  \"rtk_baseline_tokens\": 21,\n  \"rtk_notes\": \"No direct RTK equivalent; compare UTK compact output against raw-output\
+    \ savings threshold.\"\n}\n"
+  assertions:
+  - name: rtk-tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: secret-bearing-log
+  input:
+  - role: user
+    content: Compress secret-bearing logs without leaking raw output in response.
+  expected_output: "{\n  \"scenario\": \"secret-bearing-log\",\n  \"tool_id\": \"tool.secret-log\",\n  \"required_facts\"\
+    : [\n    {\n      \"kind\": \"literal\",\n      \"value\": \"OPENAI_API_KEY=sk-live-1234567890abcdef\"\n    },\n    {\n\
+    \      \"kind\": \"literal\",\n      \"value\": \"rotate key and scrub .env.local\"\n    }\n  ],\n  \"rtk_supported\"\
+    : false,\n  \"rtk_baseline_bytes\": 0,\n  \"rtk_baseline_tokens\": 12,\n  \"rtk_notes\": \"No direct RTK equivalent; compare\
+    \ UTK compact output against raw-output savings threshold.\"\n}\n"
+  assertions:
+  - name: rtk-tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: shell-terraform-plan
+  input:
+  - role: user
+    content: Compress Terraform plan output while preserving add/change/destroy counts.
+  expected_output: "{\n  \"scenario\": \"shell-terraform-plan\",\n  \"tool_id\": \"shell.terraform.plan\",\n  \"required_facts\"\
+    : [\n    {\n      \"kind\": \"literal\",\n      \"value\": \"Plan: 2 to add, 1 to change, 0 to destroy.\"\n    },\n  \
+    \  {\n      \"kind\": \"literal\",\n      \"value\": \"azurerm_linux_web_app.api\"\n    }\n  ],\n  \"rtk_supported\":\
+    \ true,\n  \"rtk_baseline_bytes\": 72,\n  \"rtk_baseline_tokens\": 18,\n  \"rtk_notes\": null\n}\n"
+  assertions:
+  - name: rtk-tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: shell-helm-status
+  input:
+  - role: user
+    content: Compress Helm release status while preserving namespace, revision, and failed hook.
+  expected_output: "{\n  \"scenario\": \"shell-helm-status\",\n  \"tool_id\": \"shell.helm.status\",\n  \"required_facts\"\
+    : [\n    {\n      \"kind\": \"literal\",\n      \"value\": \"NAMESPACE: prod\"\n    },\n    {\n      \"kind\": \"literal\"\
+    ,\n      \"value\": \"post-upgrade hook migrate-db failed\"\n    }\n  ],\n  \"rtk_supported\": true,\n  \"rtk_baseline_bytes\"\
+    : 84,\n  \"rtk_baseline_tokens\": 21,\n  \"rtk_notes\": null\n}\n"
+  assertions:
+  - name: rtk-tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: shell-ps-memory
+  input:
+  - role: user
+    content: Compress process table output while retaining PID and memory hotspot.
+  expected_output: "{\n  \"scenario\": \"shell-ps-memory\",\n  \"tool_id\": \"shell.ps.memory\",\n  \"required_facts\": [\n\
+    \    {\n      \"kind\": \"literal\",\n      \"value\": \"4812    node           932144\"\n    },\n    {\n      \"kind\"\
+    : \"literal\",\n      \"value\": \"postgres       331008\"\n    }\n  ],\n  \"rtk_supported\": true,\n  \"rtk_baseline_bytes\"\
+    : 66,\n  \"rtk_baseline_tokens\": 17,\n  \"rtk_notes\": null\n}\n"
+  assertions:
+  - name: rtk-tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: shell-netstat-listen
+  input:
+  - role: user
+    content: Compress listening socket output while preserving bound address and owning process.
+  expected_output: "{\n  \"scenario\": \"shell-netstat-listen\",\n  \"tool_id\": \"shell.netstat.listen\",\n  \"required_facts\"\
+    : [\n    {\n      \"kind\": \"literal\",\n      \"value\": \"0.0.0.0:3000\"\n    },\n    {\n      \"kind\": \"literal\"\
+    ,\n      \"value\": \"127.0.0.1:5432\"\n    }\n  ],\n  \"rtk_supported\": true,\n  \"rtk_baseline_bytes\": 90,\n  \"rtk_baseline_tokens\"\
+    : 23,\n  \"rtk_notes\": null\n}\n"
+  assertions:
+  - name: rtk-tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: shell-openssl-cert
+  input:
+  - role: user
+    content: Compress certificate inspection while retaining expiry and SAN.
+  expected_output: "{\n  \"scenario\": \"shell-openssl-cert\",\n  \"tool_id\": \"shell.openssl.cert\",\n  \"required_facts\"\
+    : [\n    {\n      \"kind\": \"literal\",\n      \"value\": \"Not After : Aug 18 23:59:59 2026 GMT\"\n    },\n    {\n \
+    \     \"kind\": \"literal\",\n      \"value\": \"DNS:api.internal.example.com\"\n    }\n  ],\n  \"rtk_supported\": true,\n\
+    \  \"rtk_baseline_bytes\": 92,\n  \"rtk_baseline_tokens\": 23,\n  \"rtk_notes\": null\n}\n"
+  assertions:
+  - name: rtk-tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: shell-pnpm-install
+  input:
+  - role: user
+    content: Compress package-manager install output while preserving peer dependency warning.
+  expected_output: "{\n  \"scenario\": \"shell-pnpm-install\",\n  \"tool_id\": \"shell.pnpm.install\",\n  \"required_facts\"\
+    : [\n    {\n      \"kind\": \"literal\",\n      \"value\": \"Packages: +128 -4\"\n    },\n    {\n      \"kind\": \"literal\"\
+    ,\n      \"value\": \"unmet peer zod@^3.25.0\"\n    }\n  ],\n  \"rtk_supported\": true,\n  \"rtk_baseline_bytes\": 78,\n\
+    \  \"rtk_baseline_tokens\": 20,\n  \"rtk_notes\": null\n}\n"
+  assertions:
+  - name: rtk-tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: shell-go-test-race
+  input:
+  - role: user
+    content: Compress Go race detector output while retaining race location.
+  expected_output: "{\n  \"scenario\": \"shell-go-test-race\",\n  \"tool_id\": \"shell.go.test\",\n  \"required_facts\": [\n\
+    \    {\n      \"kind\": \"literal\",\n      \"value\": \"WARNING: DATA RACE\"\n    },\n    {\n      \"kind\": \"literal\"\
+    ,\n      \"value\": \"/src/router/cache.go:91\"\n    }\n  ],\n  \"rtk_supported\": true,\n  \"rtk_baseline_bytes\": 81,\n\
+    \  \"rtk_baseline_tokens\": 21,\n  \"rtk_notes\": null\n}\n"
+  assertions:
+  - name: rtk-tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: shell-cargo-test
+  input:
+  - role: user
+    content: Compress Cargo test output while retaining failing test and panic message.
+  expected_output: "{\n  \"scenario\": \"shell-cargo-test\",\n  \"tool_id\": \"shell.cargo.test\",\n  \"required_facts\":\
+    \ [\n    {\n      \"kind\": \"literal\",\n      \"value\": \"router::tests::preserves_schema_id\"\n    },\n    {\n   \
+    \   \"kind\": \"literal\",\n      \"value\": \"right: \\\"shell.git-status.v1\\\"\"\n    }\n  ],\n  \"rtk_supported\"\
+    : true,\n  \"rtk_baseline_bytes\": 82,\n  \"rtk_baseline_tokens\": 21,\n  \"rtk_notes\": null\n}\n"
+  assertions:
+  - name: rtk-tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: shell-dotnet-test
+  input:
+  - role: user
+    content: Compress dotnet test output while preserving failing test and duration.
+  expected_output: "{\n  \"scenario\": \"shell-dotnet-test\",\n  \"tool_id\": \"shell.dotnet.test\",\n  \"required_facts\"\
+    : [\n    {\n      \"kind\": \"literal\",\n      \"value\": \"SerializesLargeObject [347 ms]\"\n    },\n    {\n      \"\
+    kind\": \"literal\",\n      \"value\": \"Expected token ratio below 0.35\"\n    }\n  ],\n  \"rtk_supported\": true,\n\
+    \  \"rtk_baseline_bytes\": 92,\n  \"rtk_baseline_tokens\": 23,\n  \"rtk_notes\": null\n}\n"
+  assertions:
+  - name: rtk-tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: shell-powershell-error
+  input:
+  - role: user
+    content: Compress PowerShell error output while preserving FullyQualifiedErrorId.
+  expected_output: "{\n  \"scenario\": \"shell-powershell-error\",\n  \"tool_id\": \"shell.powershell.error\",\n  \"required_facts\"\
+    : [\n    {\n      \"kind\": \"literal\",\n      \"value\": \"C:\\\\src\\\\utk\\\\missing.txt\"\n    },\n    {\n      \"\
+    kind\": \"literal\",\n      \"value\": \"PathNotFound,Microsoft.PowerShell.Commands.GetContentCommand\"\n    }\n  ],\n\
+    \  \"rtk_supported\": true,\n  \"rtk_baseline_bytes\": 97,\n  \"rtk_baseline_tokens\": 25,\n  \"rtk_notes\": null\n}\n"
+  assertions:
+  - name: rtk-tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: shell-azure-deployment
+  input:
+  - role: user
+    content: Compress Azure deployment output while retaining failed resource and correlation id.
+  expected_output: "{\n  \"scenario\": \"shell-azure-deployment\",\n  \"tool_id\": \"shell.az.deployment\",\n  \"required_facts\"\
+    : [\n    {\n      \"kind\": \"literal\",\n      \"value\": \"2d4b1a11-6d2a-4fd5-a0e3-6cfbaef67321\"\n    },\n    {\n \
+    \     \"kind\": \"literal\",\n      \"value\": \"Microsoft.Web/sites/utk-api\"\n    }\n  ],\n  \"rtk_supported\": true,\n\
+    \  \"rtk_baseline_bytes\": 108,\n  \"rtk_baseline_tokens\": 27,\n  \"rtk_notes\": null\n}\n"
+  assertions:
+  - name: rtk-tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: shell-ffmpeg-progress
+  input:
+  - role: user
+    content: Compress ffmpeg output while preserving codec error and timestamp.
+  expected_output: "{\n  \"scenario\": \"shell-ffmpeg-progress\",\n  \"tool_id\": \"shell.ffmpeg\",\n  \"required_facts\"\
+    : [\n    {\n      \"kind\": \"literal\",\n      \"value\": \"error while decoding MB 12 34\"\n    },\n    {\n      \"\
+    kind\": \"literal\",\n      \"value\": \"time=00:00:10.42\"\n    }\n  ],\n  \"rtk_supported\": true,\n  \"rtk_baseline_bytes\"\
+    : 61,\n  \"rtk_baseline_tokens\": 16,\n  \"rtk_notes\": null\n}\n"
+  assertions:
+  - name: rtk-tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: shell-mysql-explain
+  input:
+  - role: user
+    content: Compress SQL EXPLAIN table while preserving access type and rows estimate.
+  expected_output: "{\n  \"scenario\": \"shell-mysql-explain\",\n  \"tool_id\": \"shell.mysql.explain\",\n  \"required_facts\"\
+    : [\n    {\n      \"kind\": \"literal\",\n      \"value\": \"|  1 | SIMPLE      | events | ref\"\n    },\n    {\n    \
+    \  \"kind\": \"literal\",\n      \"value\": \"98231 | Using where\"\n    }\n  ],\n  \"rtk_supported\": true,\n  \"rtk_baseline_bytes\"\
+    : 88,\n  \"rtk_baseline_tokens\": 22,\n  \"rtk_notes\": null\n}\n"
+  assertions:
+  - name: rtk-tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: shell-windows-dir
+  input:
+  - role: user
+    content: Compress Windows dir output while preserving file size and timestamp.
+  expected_output: "{\n  \"scenario\": \"shell-windows-dir\",\n  \"tool_id\": \"shell.windows.dir\",\n  \"required_facts\"\
+    : [\n    {\n      \"kind\": \"literal\",\n      \"value\": \"05/20/2026  10:14 PM             4,096 rtk-parity.md\"\n\
+    \    },\n    {\n      \"kind\": \"literal\",\n      \"value\": \"<DIR>          internal\"\n    }\n  ],\n  \"rtk_supported\"\
+    : true,\n  \"rtk_baseline_bytes\": 80,\n  \"rtk_baseline_tokens\": 20,\n  \"rtk_notes\": null\n}\n"
+  assertions:
+  - name: rtk-tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: shell-jq-filter
+  input:
+  - role: user
+    content: Compress jq output while preserving selected id and null field.
+  expected_output: "{\n  \"scenario\": \"shell-jq-filter\",\n  \"tool_id\": \"shell.jq\",\n  \"required_facts\": [\n    {\n\
+    \      \"kind\": \"literal\",\n      \"value\": \"{ \\\"id\\\": 992, \\\"conclusion\\\": null }\"\n    },\n    {\n   \
+    \   \"kind\": \"literal\",\n      \"value\": \"{ \\\"id\\\": 993, \\\"conclusion\\\": \\\"success\\\" }\"\n    }\n  ],\n\
+    \  \"rtk_supported\": true,\n  \"rtk_baseline_bytes\": 62,\n  \"rtk_baseline_tokens\": 16,\n  \"rtk_notes\": null\n}\n"
+  assertions:
+  - name: rtk-tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: ndjson-event-stream
+  input:
+  - role: user
+    content: Compress newline-delimited JSON while preserving first and last event ids.
+  expected_output: "{\n  \"scenario\": \"ndjson-event-stream\",\n  \"tool_id\": \"tool.ndjson\",\n  \"required_facts\": [\n\
+    \    {\n      \"kind\": \"literal\",\n      \"value\": \"\\\"id\\\":\\\"evt-0\\\"\"\n    },\n    {\n      \"kind\": \"\
+    literal\",\n      \"value\": \"\\\"kind\\\":\\\"deploy_failed\\\"\"\n    }\n  ],\n  \"rtk_supported\": false,\n  \"rtk_baseline_bytes\"\
+    : 0,\n  \"rtk_baseline_tokens\": 106,\n  \"rtk_notes\": \"No direct RTK equivalent; compare UTK compact output against\
+    \ raw-output savings threshold.\"\n}\n"
+  assertions:
+  - name: rtk-tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: lcov-coverage-report
+  input:
+  - role: user
+    content: Compress LCOV text while preserving uncovered line and file.
+  expected_output: "{\n  \"scenario\": \"lcov-coverage-report\",\n  \"tool_id\": \"tool.lcov\",\n  \"required_facts\": [\n\
+    \    {\n      \"kind\": \"literal\",\n      \"value\": \"SF:packages/core/src/router/router.ts\"\n    },\n    {\n    \
+    \  \"kind\": \"literal\",\n      \"value\": \"DA:42,0\"\n    }\n  ],\n  \"rtk_supported\": false,\n  \"rtk_baseline_bytes\"\
+    : 0,\n  \"rtk_baseline_tokens\": 15,\n  \"rtk_notes\": \"No direct RTK equivalent; compare UTK compact output against\
+    \ raw-output savings threshold.\"\n}\n"
+  assertions:
+  - name: rtk-tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: prometheus-metrics
+  input:
+  - role: user
+    content: Compress Prometheus exposition while preserving metric labels and values.
+  expected_output: "{\n  \"scenario\": \"prometheus-metrics\",\n  \"tool_id\": \"tool.prometheus\",\n  \"required_facts\"\
+    : [\n    {\n      \"kind\": \"literal\",\n      \"value\": \"utk_tool_mediation_seconds_sum{tool=\\\"shell.rg\\\"} 1.72\"\
+    \n    },\n    {\n      \"kind\": \"literal\",\n      \"value\": \"utk_tool_mediation_seconds_count{tool=\\\"shell.rg\\\
+    \"} 12\"\n    }\n  ],\n  \"rtk_supported\": false,\n  \"rtk_baseline_bytes\": 0,\n  \"rtk_baseline_tokens\": 29,\n  \"\
+    rtk_notes\": \"No direct RTK equivalent; compare UTK compact output against raw-output savings threshold.\"\n}\n"
+  assertions:
+  - name: rtk-tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: har-network-log
+  input:
+  - role: user
+    content: Compress HAR-like network logs while preserving failing request status.
+  expected_output: "{\n  \"scenario\": \"har-network-log\",\n  \"tool_id\": \"tool.har\",\n  \"required_facts\": [\n    {\n\
+    \      \"kind\": \"jsonPath\",\n      \"path\": \"$.log.entries[1].request.url\",\n      \"expected\": \"https://app.example.test/api/runs\"\
+    \n    },\n    {\n      \"kind\": \"jsonPath\",\n      \"path\": \"$.log.entries[1].response.status\",\n      \"expected\"\
+    : 503\n    }\n  ],\n  \"rtk_supported\": false,\n  \"rtk_baseline_bytes\": 0,\n  \"rtk_baseline_tokens\": 42,\n  \"rtk_notes\"\
+    : \"No direct RTK equivalent; compare UTK compact output against raw-output savings threshold.\"\n}\n"
+  assertions:
+  - name: rtk-tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: playwright-trace-summary
+  input:
+  - role: user
+    content: Compress browser trace summaries while retaining failed action and selector.
+  expected_output: "{\n  \"scenario\": \"playwright-trace-summary\",\n  \"tool_id\": \"tool.playwright.trace\",\n  \"required_facts\"\
+    : [\n    {\n      \"kind\": \"jsonPath\",\n      \"path\": \"$.steps[1].selector\",\n      \"expected\": \"button[data-testid=\\\
+    \"pay-now\\\"]\"\n    },\n    {\n      \"kind\": \"jsonPath\",\n      \"path\": \"$.steps[1].error\",\n      \"expected\"\
+    : \"element is disabled\"\n    }\n  ],\n  \"rtk_supported\": false,\n  \"rtk_baseline_bytes\": 0,\n  \"rtk_baseline_tokens\"\
+    : 32,\n  \"rtk_notes\": \"No direct RTK equivalent; compare UTK compact output against raw-output savings threshold.\"\
+    \n}\n"
+  assertions:
+  - name: rtk-tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: package-lock-subtree
+  input:
+  - role: user
+    content: Compress package-lock subtree while preserving resolved version and integrity.
+  expected_output: "{\n  \"scenario\": \"package-lock-subtree\",\n  \"tool_id\": \"tool.package-lock\",\n  \"required_facts\"\
+    : [\n    {\n      \"kind\": \"jsonPath\",\n      \"path\": \"$.packages.node_modules/AgentV deterministic graders.version\"\
+    ,\n      \"expected\": \"0.0.132\"\n    },\n    {\n      \"kind\": \"jsonPath\",\n      \"path\": \"$.packages.node_modules/AgentV\
+    \ deterministic graders.integrity\",\n      \"expected\": \"sha512-abc123\"\n    }\n  ],\n  \"rtk_supported\": false,\n\
+    \  \"rtk_baseline_bytes\": 0,\n  \"rtk_baseline_tokens\": 24,\n  \"rtk_notes\": \"No direct RTK equivalent; compare UTK\
+    \ compact output against raw-output savings threshold.\"\n}\n"
+  assertions:
+  - name: rtk-tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: tsserver-protocol-log
+  input:
+  - role: user
+    content: Compress TypeScript server protocol logs while preserving request sequence.
+  expected_output: "{\n  \"scenario\": \"tsserver-protocol-log\",\n  \"tool_id\": \"tool.tsserver\",\n  \"required_facts\"\
+    : [\n    {\n      \"kind\": \"literal\",\n      \"value\": \"\\\"seq\\\":17\"\n    },\n    {\n      \"kind\": \"literal\"\
+    ,\n      \"value\": \"\\\"command\\\":\\\"completionInfo\\\"\"\n    }\n  ],\n  \"rtk_supported\": false,\n  \"rtk_baseline_bytes\"\
+    : 0,\n  \"rtk_baseline_tokens\": 29,\n  \"rtk_notes\": \"No direct RTK equivalent; compare UTK compact output against\
+    \ raw-output savings threshold.\"\n}\n"
+  assertions:
+  - name: rtk-tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: sqlite-query-result
+  input:
+  - role: user
+    content: Compress SQLite query result rows while preserving tenant and deleted marker.
+  expected_output: "{\n  \"scenario\": \"sqlite-query-result\",\n  \"tool_id\": \"tool.sqlite.rows\",\n  \"required_facts\"\
+    : [\n    {\n      \"kind\": \"jsonPath\",\n      \"path\": \"$[1].deleted_at\",\n      \"expected\": \"2026-05-20T22:00:00Z\"\
+    \n    },\n    {\n      \"kind\": \"jsonPath\",\n      \"path\": \"$[2].tenant_id\",\n      \"expected\": \"tenant-b\"\n\
+    \    }\n  ],\n  \"rtk_supported\": false,\n  \"rtk_baseline_bytes\": 0,\n  \"rtk_baseline_tokens\": 28,\n  \"rtk_notes\"\
+    : \"No direct RTK equivalent; compare UTK compact output against raw-output savings threshold.\"\n}\n"
+  assertions:
+  - name: rtk-tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: rfc822-email
+  input:
+  - role: user
+    content: Compress RFC822 message output while preserving Message-ID and subject.
+  expected_output: "{\n  \"scenario\": \"rfc822-email\",\n  \"tool_id\": \"tool.email\",\n  \"required_facts\": [\n    {\n\
+    \      \"kind\": \"literal\",\n      \"value\": \"Message-ID: <20260520221500.12345@example.com>\"\n    },\n    {\n  \
+    \    \"kind\": \"literal\",\n      \"value\": \"Subject: [SEV2] UTK worker queue delayed\"\n    }\n  ],\n  \"rtk_supported\"\
+    : false,\n  \"rtk_baseline_bytes\": 0,\n  \"rtk_baseline_tokens\": 20,\n  \"rtk_notes\": \"No direct RTK equivalent; compare\
+    \ UTK compact output against raw-output savings threshold.\"\n}\n"
+  assertions:
+  - name: rtk-tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: icalendar-event
+  input:
+  - role: user
+    content: Compress iCalendar event output while preserving UID and timezone timestamp.
+  expected_output: "{\n  \"scenario\": \"icalendar-event\",\n  \"tool_id\": \"tool.ical\",\n  \"required_facts\": [\n    {\n\
+    \      \"kind\": \"literal\",\n      \"value\": \"UID:deploy-20260521T140322@example.com\"\n    },\n    {\n      \"kind\"\
+    : \"literal\",\n      \"value\": \"DTSTART;TZID=America/Chicago:20260521T140322\"\n    }\n  ],\n  \"rtk_supported\": false,\n\
+    \  \"rtk_baseline_bytes\": 0,\n  \"rtk_baseline_tokens\": 16,\n  \"rtk_notes\": \"No direct RTK equivalent; compare UTK\
+    \ compact output against raw-output savings threshold.\"\n}\n"
+  assertions:
+  - name: rtk-tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: yaml-k8s-manifest
+  input:
+  - role: user
+    content: Compress Kubernetes YAML while preserving image digest and replica count.
+  expected_output: "{\n  \"scenario\": \"yaml-k8s-manifest\",\n  \"tool_id\": \"tool.yaml.k8s\",\n  \"required_facts\": [\n\
+    \    {\n      \"kind\": \"literal\",\n      \"value\": \"replicas: 3\"\n    },\n    {\n      \"kind\": \"literal\",\n\
+    \      \"value\": \"ghcr.io/acme/utk@sha256:abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcd\"\n    }\n\
+    \  ],\n  \"rtk_supported\": false,\n  \"rtk_baseline_bytes\": 0,\n  \"rtk_baseline_tokens\": 21,\n  \"rtk_notes\": \"\
+    No direct RTK equivalent; compare UTK compact output against raw-output savings threshold.\"\n}\n"
+  assertions:
+  - name: rtk-tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: toml-config-fragment
+  input:
+  - role: user
+    content: Compress TOML config while preserving serializer override and boolean flag.
+  expected_output: "{\n  \"scenario\": \"toml-config-fragment\",\n  \"tool_id\": \"tool.toml\",\n  \"required_facts\": [\n\
+    \    {\n      \"kind\": \"literal\",\n      \"value\": \"[tools.\\\"shell.git.diff\\\"]\"\n    },\n    {\n      \"kind\"\
+    : \"literal\",\n      \"value\": \"include_raw_artifact = true\"\n    }\n  ],\n  \"rtk_supported\": false,\n  \"rtk_baseline_bytes\"\
+    : 0,\n  \"rtk_baseline_tokens\": 12,\n  \"rtk_notes\": \"No direct RTK equivalent; compare UTK compact output against\
+    \ raw-output savings threshold.\"\n}\n"
+  assertions:
+  - name: rtk-tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: protobuf-json-diagnostic
+  input:
+  - role: user
+    content: Compress protobuf JSON diagnostic output while preserving field number and reserved range.
+  expected_output: "{\n  \"scenario\": \"protobuf-json-diagnostic\",\n  \"tool_id\": \"tool.protobuf.json\",\n  \"required_facts\"\
+    : [\n    {\n      \"kind\": \"jsonPath\",\n      \"path\": \"$.message.fields[1].number\",\n      \"expected\": 7\n  \
+    \  },\n    {\n      \"kind\": \"jsonPath\",\n      \"path\": \"$.message.reservedRanges[0].end\",\n      \"expected\"\
+    : 12\n    }\n  ],\n  \"rtk_supported\": false,\n  \"rtk_baseline_bytes\": 0,\n  \"rtk_baseline_tokens\": 33,\n  \"rtk_notes\"\
+    : \"No direct RTK equivalent; compare UTK compact output against raw-output savings threshold.\"\n}\n"
+  assertions:
+  - name: rtk-tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: binary-png-header
+  input:
+  - role: user
+    content: Compress binary-ish output while preserving raw artifact recovery for magic bytes.
+  expected_output: "{\n  \"scenario\": \"binary-png-header\",\n  \"tool_id\": \"tool.binary.png\",\n  \"required_facts\":\
+    \ [\n    {\n      \"kind\": \"literal\",\n      \"value\": \"magic=89504e47\"\n    },\n    {\n      \"kind\": \"literal\"\
+    ,\n      \"value\": \"width=1440 height=900\"\n    }\n  ],\n  \"rtk_supported\": false,\n  \"rtk_baseline_bytes\": 0,\n\
+    \  \"rtk_baseline_tokens\": 85,\n  \"rtk_notes\": \"No direct RTK equivalent; compare UTK compact output against raw-output\
+    \ savings threshold.\"\n}\n"
+  assertions:
+  - name: rtk-tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: multipart-form-data
+  input:
+  - role: user
+    content: Compress multipart payloads while preserving boundary and file field name.
+  expected_output: "{\n  \"scenario\": \"multipart-form-data\",\n  \"tool_id\": \"tool.multipart\",\n  \"required_facts\"\
+    : [\n    {\n      \"kind\": \"literal\",\n      \"value\": \"------WebKitFormBoundary7MA4YWxkTrZu0gW\"\n    },\n    {\n\
+    \      \"kind\": \"literal\",\n      \"value\": \"name=\\\"file\\\"; filename=\\\"report.json\\\"\"\n    }\n  ],\n  \"\
+    rtk_supported\": false,\n  \"rtk_baseline_bytes\": 0,\n  \"rtk_baseline_tokens\": 31,\n  \"rtk_notes\": \"No direct RTK\
+    \ equivalent; compare UTK compact output against raw-output savings threshold.\"\n}\n"
+  assertions:
+  - name: rtk-tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: ansi-colored-output
+  input:
+  - role: user
+    content: Compress colored terminal output while preserving visible error after escape codes.
+  expected_output: "{\n  \"scenario\": \"ansi-colored-output\",\n  \"tool_id\": \"tool.ansi\",\n  \"required_facts\": [\n\
+    \    {\n      \"kind\": \"literal\",\n      \"value\": \"schema fallback.v1 selected\"\n    },\n    {\n      \"kind\"\
+    : \"literal\",\n      \"value\": \"expected shell.git-status.v1\"\n    }\n  ],\n  \"rtk_supported\": false,\n  \"rtk_baseline_bytes\"\
+    : 0,\n  \"rtk_baseline_tokens\": 13,\n  \"rtk_notes\": \"No direct RTK equivalent; compare UTK compact output against\
+    \ raw-output savings threshold.\"\n}\n"
+  assertions:
+  - name: rtk-tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: unicode-width-table
+  input:
+  - role: user
+    content: Compress wide Unicode table output while preserving emoji/status associations.
+  expected_output: "{\n  \"scenario\": \"unicode-width-table\",\n  \"tool_id\": \"tool.unicode.table\",\n  \"required_facts\"\
+    : [\n    {\n      \"kind\": \"literal\",\n      \"value\": \"worker       eu-west-1    \u274C queue delayed\"\n    },\n\
+    \    {\n      \"kind\": \"literal\",\n      \"value\": \"scheduler    ap-south-1   \u26A0\uFE0F clock skew 320ms\"\n \
+    \   }\n  ],\n  \"rtk_supported\": false,\n  \"rtk_baseline_bytes\": 0,\n  \"rtk_baseline_tokens\": 13,\n  \"rtk_notes\"\
+    : \"No direct RTK equivalent; compare UTK compact output against raw-output savings threshold.\"\n}\n"
+  assertions:
+  - name: rtk-tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0
+- id: patch-with-renames
+  input:
+  - role: user
+    content: Compress patch metadata while preserving rename similarity and file paths.
+  expected_output: "{\n  \"scenario\": \"patch-with-renames\",\n  \"tool_id\": \"tool.patch.rename\",\n  \"required_facts\"\
+    : [\n    {\n      \"kind\": \"literal\",\n      \"value\": \"similarity index 87%\"\n    },\n    {\n      \"kind\": \"\
+    literal\",\n      \"value\": \"rename to src/router/index.ts\"\n    }\n  ],\n  \"rtk_supported\": false,\n  \"rtk_baseline_bytes\"\
+    : 0,\n  \"rtk_baseline_tokens\": 22,\n  \"rtk_notes\": \"No direct RTK equivalent; compare UTK compact output against\
+    \ raw-output savings threshold.\"\n}\n"
+  assertions:
+  - name: rtk-tool-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_completion/gradeToolCallCompletion.ts
+    weight: 2.0

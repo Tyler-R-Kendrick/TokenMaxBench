@@ -7,10 +7,9 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
-    "declaration": true,
     "rootDir": ".",
     "outDir": "dist"
   },
-  "include": ["src/**/*.ts", "evals/**/*.ts", "test/**/*.ts"],
+  "include": ["agentv.config.ts", ".agentv/**/*.ts", "evaluators/**/*.ts"],
   "exclude": ["dist", "node_modules", "vendor"]
 }

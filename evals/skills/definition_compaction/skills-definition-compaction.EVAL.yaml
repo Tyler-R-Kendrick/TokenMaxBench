@@ -1,0 +1,33 @@
+name: evals-skills-definition-compaction-skills-definition-compaction
+version: '1.0'
+description: Skill definition compaction cases using deterministic and LLM evaluators.
+metadata:
+  layered_evaluator_surface: true
+tests:
+- id: skill-definition-compaction
+  input:
+  - role: user
+    content: Compress a skill definition while preserving trigger conditions, required inputs, and safety rules.
+  expected_output: '{"scenario":"skill-definition-compaction","required_terms":["trigger conditions","required inputs","safety
+    rules"],"compresr_baseline_tokens":40,"max_token_ratio":1}'
+  assertions:
+  - name: skill-definition-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/skills/definition_compaction/gradeSkillDefinitionCompaction.ts
+    weight: 2
+  - name: skill-definition-quality
+    type: llm-grader
+    target: grader-openai
+    weight: 1
+    rubrics:
+    - id: definition-fidelity
+      outcome: Response preserves trigger conditions, required inputs, and safety constraints.
+      required: true
+      weight: 2
+    - id: definition-compactness
+      outcome: Response is shorter than the implied source definition without losing required behavior.
+      weight: 1

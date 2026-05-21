@@ -4,26 +4,28 @@
   "private": true,
   "description": "Framework-neutral benchmarks for token reduction agent setups.",
   "type": "module",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "vitest run",
-    "bench": "tsx src/cli.ts",
-    "bench:github-copilot": "tsx src/cli.ts --provider github-copilot",
-    "bench:codex": "tsx src/cli.ts --provider codex"
+    "validate": "agentv validate evals/",
+    "bench": "tsx .agentv/checkRealBenchEnv.ts && agentv eval evals/ --target github-copilot --target codex --output results/latest",
+    "bench:github-copilot": "tsx .agentv/checkRealBenchEnv.ts && agentv eval evals/ --target github-copilot --output results/github-copilot/latest",
+    "bench:codex": "tsx .agentv/checkRealBenchEnv.ts && agentv eval evals/ --target codex --output results/codex/latest"
   },
   "dependencies": {
+    "@agentv/core": "4.30.0",
+    "@agentv/eval": "4.30.0",
     "@github/copilot-sdk": "1.0.0-beta.4",
     "@openai/codex-sdk": "0.133.0",
-    "@toon-format/toon": "^2.2.0",
-    "autoevals": "^0.0.132"
+    "agentv": "4.30.0"
+  },
+  "overrides": {
+    "@agentv/core": {
+      "@agentv/eval": "4.30.0"
+    }
   },
   "devDependencies": {
     "@types/node": "^22.15.21",
     "tsx": "^4.21.0",
-    "typescript": "^5.8.3",
-    "vitest": "^4.1.6"
+    "typescript": "^5.8.3"
   }
 }

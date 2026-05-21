@@ -1,0 +1,31 @@
+name: evals-skills-call-completion-skills-call-completion
+version: '1.0'
+description: Skill call completion cases using native skill-trigger and execution metrics.
+metadata:
+  layered_evaluator_surface: true
+tests:
+- id: skill-trigger-compaction-positive
+  input:
+  - role: user
+    content: 'Use the output-compaction skill to compress: TS2345 at packages/core/src/router.ts:87 because schemaId may be undefined.'
+  expected_output: '{"scenario":"skill-call-completion","required_terms":["TS2345","packages/core/src/router.ts:87","schemaId"],"compresr_baseline_tokens":35,"max_token_ratio":1}'
+  assertions:
+  - name: skill-trigger-output-compaction
+    type: skill-trigger
+    skill: output-compaction
+    should_trigger: true
+    weight: 3
+  - name: skill-call-completion-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/skills/call_completion/gradeSkillCallCompletion.ts
+    weight: 2
+  - name: skill-call-budget
+    type: execution-metrics
+    max_tool_calls: 5
+    max_tokens: 5000
+    max_duration_ms: 120000
+    weight: 1

@@ -1,0 +1,1480 @@
+name: evals-output-compaction-output-compaction
+version: '1.0'
+description: Output compaction cases scored with deterministic retention plus LLM semantic quality and execution bounds.
+metadata:
+  layered_evaluator_surface: true
+assertions:
+- name: output-quality
+  type: llm-grader
+  target: grader-openai
+  weight: 2.0
+  rubrics:
+  - id: semantic-compression
+    outcome: Response preserves all task-critical facts while remaining compact.
+    weight: 2
+    required: true
+  - id: no-hallucination
+    outcome: Response does not introduce unsupported facts.
+    weight: 1
+    required: true
+- name: output-budget
+  type: execution-metrics
+  max_tokens: 6000
+  max_duration_ms: 120000
+  weight: 0.25
+tests:
+- id: ci-failure-triage
+  input:
+  - role: user
+    content: Summarize a failed validation run with enough detail for the next fix.
+  expected_output: "{\n  \"scenario\": \"ci-failure-triage\",\n  \"caveman_baseline\": \"CI red. `npm run typecheck` fails\
+    \ in `packages/core/src/router/router.ts:87`: TS2345. Cause: `schemaId` may be undefined. Fix guard before `routeToSchema(schemaId)`.\
+    \ Rerun `npm run typecheck`.\",\n  \"required_terms\": [\n    \"npm run typecheck\",\n    \"TS2345\",\n    \"packages/core/src/router/router.ts:87\"\
+    ,\n    \"schemaId\",\n    \"routeToSchema(schemaId)\"\n  ],\n  \"exact_terms\": [],\n  \"ordered_terms\": [],\n  \"forbidden_terms\"\
+    : [],\n  \"required_patterns\": [],\n  \"forbidden_patterns\": [],\n  \"max_token_ratio\": 1,\n  \"min_fact_score\": 1,\n\
+    \  \"caveman_tokens\": 48\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: review-finding
+  input:
+  - role: user
+    content: Compress a code-review finding without dropping file, line, risk, or fix.
+  expected_output: "{\n  \"scenario\": \"review-finding\",\n  \"caveman_baseline\": \"`packages/model-proxy/src/proxy.ts:142`\
+    \ retries POST after partial body forwarded. Risk: duplicate side effects. Fix: retry only idempotent methods or failures\
+    \ before body forwarding.\",\n  \"required_terms\": [\n    \"packages/model-proxy/src/proxy.ts:142\",\n    \"POST\",\n\
+    \    \"partial body\",\n    \"duplicate side effects\",\n    \"idempotent\"\n  ],\n  \"exact_terms\": [],\n  \"ordered_terms\"\
+    : [],\n  \"forbidden_terms\": [],\n  \"required_patterns\": [],\n  \"forbidden_patterns\": [],\n  \"max_token_ratio\"\
+    : 1,\n  \"min_fact_score\": 1,\n  \"caveman_tokens\": 46\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: artifact-recovery
+  input:
+  - role: user
+    content: Preserve recovery handles while shrinking a tool-output mediation summary.
+  expected_output: "{\n  \"scenario\": \"artifact-recovery\",\n  \"caveman_baseline\": \"Payload omitted from chat. Raw: `.utk/tools/git.status/observations/run-9/output.raw.txt`.\
+    \ Compact: `.utk/tools/git.status/observations/run-9/output.compact.toon`. Schema `shell.git-status.v1`, confidence 0.97.\"\
+    ,\n  \"required_terms\": [\n    \".utk/tools/git.status/observations/run-9/output.raw.txt\",\n    \".utk/tools/git.status/observations/run-9/output.compact.toon\"\
+    ,\n    \"shell.git-status.v1\",\n    \"0.97\"\n  ],\n  \"exact_terms\": [],\n  \"ordered_terms\": [],\n  \"forbidden_terms\"\
+    : [],\n  \"required_patterns\": [],\n  \"forbidden_patterns\": [],\n  \"max_token_ratio\": 1,\n  \"min_fact_score\": 1,\n\
+    \  \"caveman_tokens\": 53\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: implementation-status
+  input:
+  - role: user
+    content: Report implementation status with validation proof and remaining blocker.
+  expected_output: "{\n  \"scenario\": \"implementation-status\",\n  \"caveman_baseline\": \"Implementation done: run checkpoint\
+    \ persistence. Validation passed: `npm test --workspace tokenmaxbench evals`. Publish blocked: `\\\"The token in default\
+    \ is invalid\\\"`. Diff: `C:/Users/conta/.codex/automations/tk39.diff`.\",\n  \"required_terms\": [\n    \"run checkpoint\
+    \ persistence\",\n    \"npm test --workspace tokenmaxbench evals\",\n    \"The token in default is invalid\",\n    \"\
+    C:/Users/conta/.codex/automations/tk39.diff\"\n  ],\n  \"exact_terms\": [],\n  \"ordered_terms\": [],\n  \"forbidden_terms\"\
+    : [],\n  \"required_patterns\": [],\n  \"forbidden_patterns\": [],\n  \"max_token_ratio\": 1,\n  \"min_fact_score\": 1,\n\
+    \  \"caveman_tokens\": 53\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: commit-message
+  input:
+  - role: user
+    content: Compress a Conventional Commit message while preserving scope and behavior.
+  expected_output: "{\n  \"scenario\": \"commit-message\",\n  \"caveman_baseline\": \"test(evals): add caveman parity benchmarks\
+    \ and AgentV SDK grader\",\n  \"required_terms\": [\n    \"test(evals)\",\n    \"caveman parity\",\n    \"AgentV deterministic\
+    \ graders\"\n  ],\n  \"exact_terms\": [],\n  \"ordered_terms\": [],\n  \"forbidden_terms\": [],\n  \"required_patterns\"\
+    : [],\n  \"forbidden_patterns\": [],\n  \"max_token_ratio\": 1,\n  \"min_fact_score\": 1,\n  \"caveman_tokens\": 18\n\
+    }\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: slash-command-help
+  input:
+  - role: user
+    content: Explain a command switch compactly without losing mode names or stop phrase.
+  expected_output: "{\n  \"scenario\": \"slash-command-help\",\n  \"caveman_baseline\": \"`/caveman lite|full|ultra|wenyan`\
+    \ sets compression level. Stop with `stop caveman` or `normal mode`.\",\n  \"required_terms\": [\n    \"/caveman lite|full|ultra|wenyan\"\
+    ,\n    \"stop caveman\",\n    \"normal mode\"\n  ],\n  \"exact_terms\": [],\n  \"ordered_terms\": [],\n  \"forbidden_terms\"\
+    : [],\n  \"required_patterns\": [],\n  \"forbidden_patterns\": [],\n  \"max_token_ratio\": 1,\n  \"min_fact_score\": 1,\n\
+    \  \"caveman_tokens\": 25\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: security-auto-clarity
+  input:
+  - role: user
+    content: Keep a security warning clear while still removing redundant prose.
+  expected_output: "{\n  \"scenario\": \"security-auto-clarity\",\n  \"caveman_baseline\": \"Warning: rotating production\
+    \ signing key invalidates all active sessions. Backup old key and confirm rollback plan before applying.\",\n  \"required_terms\"\
+    : [\n    \"Warning\",\n    \"prod signing key\",\n    \"all sessions invalid\",\n    \"Backup old key\",\n    \"rollback\
+    \ plan\"\n  ],\n  \"exact_terms\": [],\n  \"ordered_terms\": [],\n  \"forbidden_terms\": [],\n  \"required_patterns\"\
+    : [],\n  \"forbidden_patterns\": [],\n  \"max_token_ratio\": 1,\n  \"min_fact_score\": 1,\n  \"caveman_tokens\": 33\n\
+    }\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: mcp-tool-metadata
+  input:
+  - role: user
+    content: Shrink MCP tool metadata while preserving tool name, scope, and safety boundary.
+  expected_output: "{\n  \"scenario\": \"mcp-tool-metadata\",\n  \"caveman_baseline\": \"`detok` rewrites bulky natural-language\
+    \ text locally before model use. Avoid secrets, private keys, code blocks, exact errors.\",\n  \"required_terms\": [\n\
+    \    \"detok\",\n    \"local\",\n    \"bulky natural language\",\n    \"secrets\",\n    \"private keys\",\n    \"code\
+    \ blocks\",\n    \"exact errors\"\n  ],\n  \"exact_terms\": [],\n  \"ordered_terms\": [],\n  \"forbidden_terms\": [],\n\
+    \  \"required_patterns\": [],\n  \"forbidden_patterns\": [],\n  \"max_token_ratio\": 1,\n  \"min_fact_score\": 1,\n  \"\
+    caveman_tokens\": 32\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: benchmark-result
+  input:
+  - role: user
+    content: Report benchmark result with pass counts, ratio, and next action.
+  expected_output: "{\n  \"scenario\": \"benchmark-result\",\n  \"caveman_baseline\": \"Caveman parity green: 11/11 tests.\
+    \ Avg candidate/caveman token ratio 0.89. Next: publish report.\",\n  \"required_terms\": [\n    \"Caveman parity\",\n\
+    \    \"11/11\",\n    \"0.89\",\n    \"publish report\"\n  ],\n  \"exact_terms\": [],\n  \"ordered_terms\": [],\n  \"forbidden_terms\"\
+    : [],\n  \"required_patterns\": [],\n  \"forbidden_patterns\": [],\n  \"max_token_ratio\": 1,\n  \"min_fact_score\": 1,\n\
+    \  \"caveman_tokens\": 24\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: incident-handoff
+  input:
+  - role: user
+    content: Condense an incident handoff while preserving owner, severity, impact, and mitigation.
+  expected_output: "{\n  \"scenario\": \"incident-handoff\",\n  \"caveman_baseline\": \"SEV2. Owner `platform-oncall`. Impact:\
+    \ 12% 500s on `/api/codex/chat`. Mitigation: roll back `2026.05.20.4`.\",\n  \"required_terms\": [\n    \"SEV2\",\n  \
+    \  \"platform-oncall\",\n    \"12% 500s\",\n    \"/api/codex/chat\",\n    \"2026.05.20.4\"\n  ],\n  \"exact_terms\": [],\n\
+    \  \"ordered_terms\": [],\n  \"forbidden_terms\": [],\n  \"required_patterns\": [],\n  \"forbidden_patterns\": [],\n \
+    \ \"max_token_ratio\": 1,\n  \"min_fact_score\": 1,\n  \"caveman_tokens\": 27\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: api-contract-change
+  input:
+  - role: user
+    content: Summarize an API contract change with endpoint, field, compatibility, and migration.
+  expected_output: "{\n  \"scenario\": \"api-contract-change\",\n  \"caveman_baseline\": \"`POST /api/codex/chat` adds optional\
+    \ `providerOptions.reasoningEffort`. Backward compatible. Values: `low|medium|high|xhigh`.\",\n  \"required_terms\": [\n\
+    \    \"POST /api/codex/chat\",\n    \"providerOptions.reasoningEffort\",\n    \"optional\",\n    \"compatible\",\n   \
+    \ \"low|medium|high|xhigh\"\n  ],\n  \"exact_terms\": [],\n  \"ordered_terms\": [],\n  \"forbidden_terms\": [],\n  \"\
+    required_patterns\": [],\n  \"forbidden_patterns\": [],\n  \"max_token_ratio\": 1,\n  \"min_fact_score\": 1,\n  \"caveman_tokens\"\
+    : 32\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: test-plan
+  input:
+  - role: user
+    content: Compress a TDD plan while retaining red/green/refactor order and named gate.
+  expected_output: "{\n  \"scenario\": \"test-plan\",\n  \"caveman_baseline\": \"TDD: red test for missing artifact refs ->\
+    \ compact response fix -> refactor after green. Gate: `npm test --workspace tokenmaxbench evals`.\",\n  \"required_terms\"\
+    : [\n    \"TDD\",\n    \"red\",\n    \"missing artifact refs\",\n    \"compact response\",\n    \"refactor after green\"\
+    ,\n    \"npm test --workspace tokenmaxbench evals\"\n  ],\n  \"exact_terms\": [],\n  \"ordered_terms\": [],\n  \"forbidden_terms\"\
+    : [],\n  \"required_patterns\": [],\n  \"forbidden_patterns\": [],\n  \"max_token_ratio\": 1,\n  \"min_fact_score\": 1,\n\
+    \  \"caveman_tokens\": 33\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: exact-error-string
+  input:
+  - role: user
+    content: Compress a failure report while preserving exact quoted Windows error text.
+  expected_output: "{\n  \"scenario\": \"exact-error-string\",\n  \"caveman_baseline\": \"Publish blocked by env error: `Cannot\
+    \ read directory \\\"../../../../..\\\": Access is denied.` Treat as environment blocker, not code failure.\",\n  \"required_terms\"\
+    : [\n    \"Publish blocked\",\n    \"Cannot read directory\",\n    \"Access is denied\",\n    \"Env blocker\"\n  ],\n\
+    \  \"exact_terms\": [\n    \"Cannot read directory \\\"../../../../..\\\": Access is denied.\"\n  ],\n  \"ordered_terms\"\
+    : [],\n  \"forbidden_terms\": [],\n  \"required_patterns\": [],\n  \"forbidden_patterns\": [],\n  \"max_token_ratio\"\
+    : 1,\n  \"min_fact_score\": 1,\n  \"caveman_tokens\": 35\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: windows-paths
+  input:
+  - role: user
+    content: Shrink a handoff containing Windows paths without normalizing separators.
+  expected_output: "{\n  \"scenario\": \"windows-paths\",\n  \"caveman_baseline\": \"Report: `C:\\\\Users\\\\conta\\\\.codex\\\
+    \\worktrees\\\\2f15\\\\utk\\\\docs\\\\internal\\\\caveman-parity-benchmark-results.md`. Fixture: `C:\\\\Users\\\\conta\\\
+    \\.codex\\\\worktrees\\\\2f15\\\\utk\\\\packages\\\\evals\\\\fixtures\\\\cavemanParityFixtures.ts`.\",\n  \"required_terms\"\
+    : [\n    \"Report\",\n    \"Fixture\"\n  ],\n  \"exact_terms\": [\n    \"C:\\\\Users\\\\conta\\\\.codex\\\\worktrees\\\
+    \\2f15\\\\utk\\\\docs\\\\internal\\\\caveman-parity-benchmark-results.md\",\n    \"C:\\\\Users\\\\conta\\\\.codex\\\\\
+    worktrees\\\\2f15\\\\utk\\\\packages\\\\evals\\\\fixtures\\\\cavemanParityFixtures.ts\"\n  ],\n  \"ordered_terms\": [],\n\
+    \  \"forbidden_terms\": [],\n  \"required_patterns\": [],\n  \"forbidden_patterns\": [],\n  \"max_token_ratio\": 1,\n\
+    \  \"min_fact_score\": 1,\n  \"caveman_tokens\": 51\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: json-config-diff
+  input:
+  - role: user
+    content: Summarize a config change while preserving JSON keys and numeric values exactly.
+  expected_output: "{\n  \"scenario\": \"json-config-diff\",\n  \"caveman_baseline\": \"Config change: `\\\"max_context_tokens\\\
+    \": 5000 -> 3000`; `\\\"prompt_compression_min_tokens\\\": 10 -> 1`. Keep quoted keys.\",\n  \"required_terms\": [\n \
+    \   \"max_context_tokens\",\n    \"3000\",\n    \"prompt_compression_min_tokens\",\n    \"1\"\n  ],\n  \"exact_terms\"\
+    : [\n    \"\\\"max_context_tokens\\\": 5000 -> 3000\",\n    \"\\\"prompt_compression_min_tokens\\\": 10 -> 1\"\n  ],\n\
+    \  \"ordered_terms\": [],\n  \"forbidden_terms\": [],\n  \"required_patterns\": [],\n  \"forbidden_patterns\": [],\n \
+    \ \"max_token_ratio\": 1,\n  \"min_fact_score\": 1,\n  \"caveman_tokens\": 29\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: destructive-migration-warning
+  input:
+  - role: user
+    content: Keep destructive database migration warning clear and ordered.
+  expected_output: "{\n  \"scenario\": \"destructive-migration-warning\",\n  \"caveman_baseline\": \"Warning: `DROP legacy_events.payload`\
+    \ irreversible after migration. Order: backup -> migrate -> verify row counts -> delete backup.\",\n  \"required_terms\"\
+    : [\n    \"Warning\",\n    \"DROP legacy_events.payload\",\n    \"irreversible\",\n    \"backup\",\n    \"migrate\",\n\
+    \    \"verify rows\",\n    \"delete backup\"\n  ],\n  \"exact_terms\": [],\n  \"ordered_terms\": [\n    \"backup\",\n\
+    \    \"migrate\",\n    \"verify rows\",\n    \"delete backup\"\n  ],\n  \"forbidden_terms\": [],\n  \"required_patterns\"\
+    : [],\n  \"forbidden_patterns\": [],\n  \"max_token_ratio\": 1,\n  \"min_fact_score\": 1,\n  \"caveman_tokens\": 33\n\
+    }\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: negative-review-result
+  input:
+  - role: user
+    content: Report no findings without implying hidden defects.
+  expected_output: "{\n  \"scenario\": \"negative-review-result\",\n  \"caveman_baseline\": \"No actionable findings. Residual\
+    \ risk: browser visual smoke not run in this env.\",\n  \"required_terms\": [\n    \"No actionable findings\",\n    \"\
+    browser visual smoke\",\n    \"not run\"\n  ],\n  \"exact_terms\": [],\n  \"ordered_terms\": [],\n  \"forbidden_terms\"\
+    : [\n    \"bug\",\n    \"defect\",\n    \"failure\"\n  ],\n  \"required_patterns\": [],\n  \"forbidden_patterns\": [],\n\
+    \  \"max_token_ratio\": 1,\n  \"min_fact_score\": 1,\n  \"caveman_tokens\": 20\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: ordered-publish-steps
+  input:
+  - role: user
+    content: Compress publish instructions where order matters.
+  expected_output: "{\n  \"scenario\": \"ordered-publish-steps\",\n  \"caveman_baseline\": \"Publish order: rebase `origin/main`\
+    \ -> resolve conflicts -> `npm test` -> push branch -> open PR.\",\n  \"required_terms\": [\n    \"rebase\",\n    \"origin/main\"\
+    ,\n    \"resolve conflicts\",\n    \"npm test\",\n    \"push\",\n    \"open PR\"\n  ],\n  \"exact_terms\": [],\n  \"ordered_terms\"\
+    : [\n    \"rebase\",\n    \"resolve conflicts\",\n    \"npm test\",\n    \"push\",\n    \"open PR\"\n  ],\n  \"forbidden_terms\"\
+    : [],\n  \"required_patterns\": [],\n  \"forbidden_patterns\": [],\n  \"max_token_ratio\": 1,\n  \"min_fact_score\": 1,\n\
+    \  \"caveman_tokens\": 25\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: secret-redaction
+  input:
+  - role: user
+    content: Compress secret-leak finding while proving the secret is not repeated.
+  expected_output: "{\n  \"scenario\": \"secret-redaction\",\n  \"caveman_baseline\": \"Secret leak in `.env.local`: `OPENAI_API_KEY=[REDACTED]`.\
+    \ Rotate key; remove from file. Do not echo value.\",\n  \"required_terms\": [\n    \"Secret leak\",\n    \".env.local\"\
+    ,\n    \"OPENAI_API_KEY\",\n    \"[REDACTED]\",\n    \"Rotate\"\n  ],\n  \"exact_terms\": [\n    \"OPENAI_API_KEY=[REDACTED]\"\
+    \n  ],\n  \"ordered_terms\": [],\n  \"forbidden_terms\": [\n    \"sk-live-1234567890abcdef\"\n  ],\n  \"required_patterns\"\
+    : [],\n  \"forbidden_patterns\": [],\n  \"max_token_ratio\": 1,\n  \"min_fact_score\": 1,\n  \"caveman_tokens\": 27\n\
+    }\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: latency-regression
+  input:
+  - role: user
+    content: Report a performance regression with exact p95 and budget values.
+  expected_output: "{\n  \"scenario\": \"latency-regression\",\n  \"caveman_baseline\": \"Perf regression: p95 184ms > 150ms\
+    \ budget. Culprit likely AgentV deterministic grader setup during report generation.\",\n  \"required_terms\": [\n   \
+    \ \"p95 184ms\",\n    \"150ms\",\n    \"AgentV deterministic grader\",\n    \"report gen\"\n  ],\n  \"exact_terms\": [\n\
+    \    \"p95 184ms > 150ms\"\n  ],\n  \"ordered_terms\": [],\n  \"forbidden_terms\": [],\n  \"required_patterns\": [],\n\
+    \  \"forbidden_patterns\": [],\n  \"max_token_ratio\": 1,\n  \"min_fact_score\": 1,\n  \"caveman_tokens\": 27\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: timestamp-timezone
+  input:
+  - role: user
+    content: Compress a scheduling note while preserving offset timestamp and local timezone.
+  expected_output: "{\n  \"scenario\": \"timestamp-timezone\",\n  \"caveman_baseline\": \"Reminder at `2026-05-21 14:03:22-05:00\
+    \ America/Chicago`; do not convert to UTC.\",\n  \"required_terms\": [\n    \"2026-05-21 14:03:22-05:00\",\n    \"America/Chicago\"\
+    ,\n    \"no UTC conversion\"\n  ],\n  \"exact_terms\": [],\n  \"ordered_terms\": [],\n  \"forbidden_terms\": [],\n  \"\
+    required_patterns\": [\n    \"2026-05-21\\\\s+14:03:22-05:00\\\\s+America/Chicago\"\n  ],\n  \"forbidden_patterns\": [],\n\
+    \  \"max_token_ratio\": 1,\n  \"min_fact_score\": 1,\n  \"caveman_tokens\": 20\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: url-query-fragment
+  input:
+  - role: user
+    content: Shrink a link handoff while preserving query params and fragment.
+  expected_output: "{\n  \"scenario\": \"url-query-fragment\",\n  \"caveman_baseline\": \"Reviewer link: `https://agentv.dev/docs/evaluation/sdk/`;\
+    \ verify TS code-grader example.\",\n  \"required_terms\": [\n    \"https://agentv.dev/docs/evaluation/sdk/\",\n    \"\
+    TS code-grader\"\n  ],\n  \"exact_terms\": [\n    \"https://agentv.dev/docs/evaluation/sdk/\"\n  ],\n  \"ordered_terms\"\
+    : [],\n  \"forbidden_terms\": [],\n  \"required_patterns\": [],\n  \"forbidden_patterns\": [],\n  \"max_token_ratio\"\
+    : 1,\n  \"min_fact_score\": 1,\n  \"caveman_tokens\": 34\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: semver-range
+  input:
+  - role: user
+    content: Compress dependency guidance while preserving a complex semver range.
+  expected_output: "{\n  \"scenario\": \"semver-range\",\n  \"caveman_baseline\": \"`AgentV deterministic graders` range:\
+    \ `^0.0.132 || >=0.1.0 <0.2.0`. Do not use `latest`; CI deterministic.\",\n  \"required_terms\": [\n    \"AgentV deterministic\
+    \ graders\",\n    \"^0.0.132 || >=0.1.0 <0.2.0\",\n    \"no `latest`\"\n  ],\n  \"exact_terms\": [\n    \"^0.0.132 ||\
+    \ >=0.1.0 <0.2.0\"\n  ],\n  \"ordered_terms\": [],\n  \"forbidden_terms\": [\n    \"latest because\"\n  ],\n  \"required_patterns\"\
+    : [],\n  \"forbidden_patterns\": [],\n  \"max_token_ratio\": 1,\n  \"min_fact_score\": 1,\n  \"caveman_tokens\": 22\n\
+    }\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: env-precedence
+  input:
+  - role: user
+    content: Summarize config precedence without changing order.
+  expected_output: "{\n  \"scenario\": \"env-precedence\",\n  \"caveman_baseline\": \"Precedence: CLI flag -> `UTK_CONFIG_PATH`\
+    \ -> `.utk/config.toml` -> built-in defaults.\",\n  \"required_terms\": [\n    \"CLI flag\",\n    \"UTK_CONFIG_PATH\"\
+    ,\n    \".utk/config.toml\",\n    \"defaults\"\n  ],\n  \"exact_terms\": [],\n  \"ordered_terms\": [\n    \"CLI flag\"\
+    ,\n    \"UTK_CONFIG_PATH\",\n    \".utk/config.toml\",\n    \"defaults\"\n  ],\n  \"forbidden_terms\": [],\n  \"required_patterns\"\
+    : [],\n  \"forbidden_patterns\": [],\n  \"max_token_ratio\": 1,\n  \"min_fact_score\": 1,\n  \"caveman_tokens\": 22\n\
+    }\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: zero-failure-summary
+  input:
+  - role: user
+    content: Report zero failures without accidentally implying a failure.
+  expected_output: "{\n  \"scenario\": \"zero-failure-summary\",\n  \"caveman_baseline\": \"Green: 312 passing, 0 failures,\
+    \ 0 skipped.\",\n  \"required_terms\": [\n    \"Green\",\n    \"312\",\n    \"0 fail\",\n    \"0 skip\"\n  ],\n  \"exact_terms\"\
+    : [],\n  \"ordered_terms\": [],\n  \"forbidden_terms\": [],\n  \"required_patterns\": [],\n  \"forbidden_patterns\": [\n\
+    \    \"failures|failed|failing\"\n  ],\n  \"max_token_ratio\": 1,\n  \"min_fact_score\": 1,\n  \"caveman_tokens\": 11\n\
+    }\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: percentage-delta
+  input:
+  - role: user
+    content: Compress a benchmark delta with sign, decimal, and baseline preserved.
+  expected_output: "{\n  \"scenario\": \"percentage-delta\",\n  \"caveman_baseline\": \"Prompt cost: 8,192 -> 7,168 tokens,\
+    \ -12.5%.\",\n  \"required_terms\": [\n    \"8,192\",\n    \"7,168\",\n    \"-12.5%\"\n  ],\n  \"exact_terms\": [],\n\
+    \  \"ordered_terms\": [],\n  \"forbidden_terms\": [],\n  \"required_patterns\": [\n    \"8,192->7,168 \\\\(-12\\\\.5%\\\
+    \\)\"\n  ],\n  \"forbidden_patterns\": [],\n  \"max_token_ratio\": 1,\n  \"min_fact_score\": 1,\n  \"caveman_tokens\"\
+    : 11\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: table-row
+  input:
+  - role: user
+    content: Compress a table row while preserving column-value associations.
+  expected_output: "{\n  \"scenario\": \"table-row\",\n  \"caveman_baseline\": \"Table row: NAME=core STATUS=pass TOKENS=124\
+    \ RATIO=0.82.\",\n  \"required_terms\": [\n    \"core\",\n    \"pass\",\n    \"124\",\n    \"0.82\"\n  ],\n  \"exact_terms\"\
+    : [],\n  \"ordered_terms\": [],\n  \"forbidden_terms\": [],\n  \"required_patterns\": [\n    \"core/pass/124/0\\\\.82\"\
+    \n  ],\n  \"forbidden_patterns\": [],\n  \"max_token_ratio\": 1,\n  \"min_fact_score\": 1,\n  \"caveman_tokens\": 14\n\
+    }\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: stack-trace-top-frame
+  input:
+  - role: user
+    content: Summarize stack trace by preserving top frame and error.
+  expected_output: "{\n  \"scenario\": \"stack-trace-top-frame\",\n  \"caveman_baseline\": \"`TypeError: Cannot read properties\
+    \ of undefined` at `parseConfig (src/config.ts:42:13)`. Lower frames omitted.\",\n  \"required_terms\": [\n    \"TypeError\"\
+    ,\n    \"Cannot read properties of undefined\",\n    \"parseConfig (src/config.ts:42:13)\"\n  ],\n  \"exact_terms\": [\n\
+    \    \"parseConfig (src/config.ts:42:13)\"\n  ],\n  \"ordered_terms\": [],\n  \"forbidden_terms\": [\n    \"loadConfig\
+    \ (src/config.ts:80:9)\"\n  ],\n  \"required_patterns\": [],\n  \"forbidden_patterns\": [],\n  \"max_token_ratio\": 1,\n\
+    \  \"min_fact_score\": 1,\n  \"caveman_tokens\": 28\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: shell-quote-command
+  input:
+  - role: user
+    content: Compress shell guidance without changing quotes or spaces.
+  expected_output: "{\n  \"scenario\": \"shell-quote-command\",\n  \"caveman_baseline\": \"Run `git commit -m \\\"fix: handle\
+    \ spaces\\\"` after staging. Keep quotes.\",\n  \"required_terms\": [\n    \"git commit\",\n    \"fix: handle spaces\"\
+    ,\n    \"keep quotes\"\n  ],\n  \"exact_terms\": [\n    \"git commit -m \\\"fix: handle spaces\\\"\"\n  ],\n  \"ordered_terms\"\
+    : [],\n  \"forbidden_terms\": [],\n  \"required_patterns\": [],\n  \"forbidden_patterns\": [],\n  \"max_token_ratio\"\
+    : 1,\n  \"min_fact_score\": 1,\n  \"caveman_tokens\": 17\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: sql-where-clause
+  input:
+  - role: user
+    content: Summarize SQL filter change without losing tenant isolation.
+  expected_output: "{\n  \"scenario\": \"sql-where-clause\",\n  \"caveman_baseline\": \"SQL must include `WHERE tenant_id\
+    \ = $1 AND deleted_at IS NULL` before `ORDER BY created_at DESC`.\",\n  \"required_terms\": [\n    \"WHERE tenant_id =\
+    \ $1 AND deleted_at IS NULL\",\n    \"before order\"\n  ],\n  \"exact_terms\": [\n    \"WHERE tenant_id = $1 AND deleted_at\
+    \ IS NULL\"\n  ],\n  \"ordered_terms\": [],\n  \"forbidden_terms\": [],\n  \"required_patterns\": [],\n  \"forbidden_patterns\"\
+    : [\n    \"WHERE deleted_at IS NULL\"\n  ],\n  \"max_token_ratio\": 1,\n  \"min_fact_score\": 1,\n  \"caveman_tokens\"\
+    : 25\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: yaml-frontmatter
+  input:
+  - role: user
+    content: Compress documentation metadata while preserving YAML booleans and tag list.
+  expected_output: "{\n  \"scenario\": \"yaml-frontmatter\",\n  \"caveman_baseline\": \"Frontmatter: `draft: false`; `tags:\
+    \ [evals, caveman, AgentV deterministic graders]`.\",\n  \"required_terms\": [\n    \"draft: false\",\n    \"tags: [evals,\
+    \ caveman, AgentV deterministic graders]\"\n  ],\n  \"exact_terms\": [\n    \"draft: false\",\n    \"tags: [evals, caveman,\
+    \ AgentV deterministic graders]\"\n  ],\n  \"ordered_terms\": [],\n  \"forbidden_terms\": [],\n  \"required_patterns\"\
+    : [],\n  \"forbidden_patterns\": [],\n  \"max_token_ratio\": 1,\n  \"min_fact_score\": 1,\n  \"caveman_tokens\": 17\n\
+    }\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: graph-edge-path
+  input:
+  - role: user
+    content: Summarize graph traversal without inserting nonexistent nodes.
+  expected_output: "{\n  \"scenario\": \"graph-edge-path\",\n  \"caveman_baseline\": \"Path: `agent-browser -> benchmarkModelRouting\
+    \ -> sessionState`. Not through `SettingsPanel`.\",\n  \"required_terms\": [\n    \"agent-browser\",\n    \"benchmarkModelRouting\"\
+    ,\n    \"sessionState\"\n  ],\n  \"exact_terms\": [],\n  \"ordered_terms\": [\n    \"agent-browser\",\n    \"benchmarkModelRouting\"\
+    ,\n    \"sessionState\"\n  ],\n  \"forbidden_terms\": [\n    \"through SettingsPanel\"\n  ],\n  \"required_patterns\"\
+    : [],\n  \"forbidden_patterns\": [],\n  \"max_token_ratio\": 1,\n  \"min_fact_score\": 1,\n  \"caveman_tokens\": 23\n\
+    }\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: wcag-contrast
+  input:
+  - role: user
+    content: Compress accessibility finding with WCAG id, ratio, threshold, and fix.
+  expected_output: "{\n  \"scenario\": \"wcag-contrast\",\n  \"caveman_baseline\": \"A11y fail: WCAG 2.2 AA 1.4.3, contrast\
+    \ 3.9:1 < 4.5:1. Fix: darken foreground.\",\n  \"required_terms\": [\n    \"WCAG 2.2 AA 1.4.3\",\n    \"3.9:1 < 4.5:1\"\
+    ,\n    \"Darken\"\n  ],\n  \"exact_terms\": [],\n  \"ordered_terms\": [],\n  \"forbidden_terms\": [],\n  \"required_patterns\"\
+    : [\n    \"3\\\\.9:1\\\\s+<\\\\s+4\\\\.5:1\"\n  ],\n  \"forbidden_patterns\": [],\n  \"max_token_ratio\": 1,\n  \"min_fact_score\"\
+    : 1,\n  \"caveman_tokens\": 20\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: icu-placeholder
+  input:
+  - role: user
+    content: Shrink localization note while preserving ICU placeholder syntax.
+  expected_output: "{\n  \"scenario\": \"icu-placeholder\",\n  \"caveman_baseline\": \"Keep ICU exactly: `{count, plural,\
+    \ one {# file} other {# files}}`; parser depends on it.\",\n  \"required_terms\": [\n    \"{count, plural, one {# file}\
+    \ other {# files}}\",\n    \"parser\"\n  ],\n  \"exact_terms\": [\n    \"{count, plural, one {# file} other {# files}}\"\
+    \n  ],\n  \"ordered_terms\": [],\n  \"forbidden_terms\": [],\n  \"required_patterns\": [],\n  \"forbidden_patterns\":\
+    \ [],\n  \"max_token_ratio\": 1,\n  \"min_fact_score\": 1,\n  \"caveman_tokens\": 22\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: markdown-link
+  input:
+  - role: user
+    content: Compress link guidance while preserving Markdown link target.
+  expected_output: "{\n  \"scenario\": \"markdown-link\",\n  \"caveman_baseline\": \"Use `[AgentV SDK](https://agentv.dev/docs/evaluation/sdk/)`;\
+    \ no bare URL duplicate.\",\n  \"required_terms\": [\n    \"[AgentV SDK](https://agentv.dev/docs/evaluation/sdk/)\",\n\
+    \    \"no duplicate\"\n  ],\n  \"exact_terms\": [\n    \"[AgentV SDK](https://agentv.dev/docs/evaluation/sdk/)\"\n  ],\n\
+    \  \"ordered_terms\": [],\n  \"forbidden_terms\": [],\n  \"required_patterns\": [],\n  \"forbidden_patterns\": [],\n \
+    \ \"max_token_ratio\": 1,\n  \"min_fact_score\": 1,\n  \"caveman_tokens\": 28\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: sha256-checksum
+  input:
+  - role: user
+    content: Report artifact checksum without truncation.
+  expected_output: "{\n  \"scenario\": \"sha256-checksum\",\n  \"caveman_baseline\": \"Archive: `sha256:0f1e2d3c4b5a69788796a5b4c3d2e1f00123456789abcdef0123456789abcdef`,\
+    \ size 42 MB.\",\n  \"required_terms\": [\n    \"sha256:0f1e2d3c4b5a69788796a5b4c3d2e1f00123456789abcdef0123456789abcdef\"\
+    ,\n    \"42 MB\"\n  ],\n  \"exact_terms\": [\n    \"sha256:0f1e2d3c4b5a69788796a5b4c3d2e1f00123456789abcdef0123456789abcdef\"\
+    \n  ],\n  \"ordered_terms\": [],\n  \"forbidden_terms\": [],\n  \"required_patterns\": [\n    \"sha256:[0-9a-f]{64}\"\n\
+    \  ],\n  \"forbidden_patterns\": [],\n  \"max_token_ratio\": 1,\n  \"min_fact_score\": 1,\n  \"caveman_tokens\": 24\n\
+    }\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: exit-code-signal
+  input:
+  - role: user
+    content: Compress process failure with exit code and signal.
+  expected_output: "{\n  \"scenario\": \"exit-code-signal\",\n  \"caveman_baseline\": \"Worker exit 137 (`SIGKILL`). Likely\
+    \ memory/external kill, not TypeScript compile failure.\",\n  \"required_terms\": [\n    \"exit 137\",\n    \"SIGKILL\"\
+    ,\n    \"memory/external kill\",\n    \"not TS compile\"\n  ],\n  \"exact_terms\": [],\n  \"ordered_terms\": [],\n  \"\
+    forbidden_terms\": [\n    \"TypeScript compile failure\"\n  ],\n  \"required_patterns\": [],\n  \"forbidden_patterns\"\
+    : [],\n  \"max_token_ratio\": 1,\n  \"min_fact_score\": 1,\n  \"caveman_tokens\": 23\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: partial-success
+  input:
+  - role: user
+    content: Report mixed test result without flattening to pass/fail.
+  expected_output: "{\n  \"scenario\": \"partial-success\",\n  \"caveman_baseline\": \"Batch: 3 passed, 1 failed, 2 skipped.\
+    \ Failed shard: `windows-node20`.\",\n  \"required_terms\": [\n    \"3 pass\",\n    \"1 fail\",\n    \"2 skip\",\n   \
+    \ \"windows-node20\"\n  ],\n  \"exact_terms\": [],\n  \"ordered_terms\": [],\n  \"forbidden_terms\": [\n    \"all green\"\
+    ,\n    \"fully passed\"\n  ],\n  \"required_patterns\": [],\n  \"forbidden_patterns\": [],\n  \"max_token_ratio\": 1,\n\
+    \  \"min_fact_score\": 1,\n  \"caveman_tokens\": 18\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: license-notice
+  input:
+  - role: user
+    content: Compress license notice while preserving license, copyright holder, and year.
+  expected_output: "{\n  \"scenario\": \"license-notice\",\n  \"caveman_baseline\": \"Third-party snippet: MIT; Copyright\
+    \ 2026 Example Labs; retain NOTICE.\",\n  \"required_terms\": [\n    \"MIT\",\n    \"Copyright 2026 Example Labs\",\n\
+    \    \"NOTICE\"\n  ],\n  \"exact_terms\": [],\n  \"ordered_terms\": [],\n  \"forbidden_terms\": [\n    \"Apache\",\n \
+    \   \"GPL\"\n  ],\n  \"required_patterns\": [],\n  \"forbidden_patterns\": [],\n  \"max_token_ratio\": 1,\n  \"min_fact_score\"\
+    : 1,\n  \"caveman_tokens\": 18\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: retention-policy
+  input:
+  - role: user
+    content: Summarize data-retention rule without weakening privacy terms.
+  expected_output: "{\n  \"scenario\": \"retention-policy\",\n  \"caveman_baseline\": \"Privacy: PII max 30 days, EU regions\
+    \ only, then delete records.\",\n  \"required_terms\": [\n    \"PII\",\n    \"max 30 days\",\n    \"EU\",\n    \"delete\"\
+    \n  ],\n  \"exact_terms\": [],\n  \"ordered_terms\": [],\n  \"forbidden_terms\": [\n    \"forever\",\n    \"indefinite\"\
+    ,\n    \"US regions\"\n  ],\n  \"required_patterns\": [],\n  \"forbidden_patterns\": [],\n  \"max_token_ratio\": 1,\n\
+    \  \"min_fact_score\": 1,\n  \"caveman_tokens\": 16\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: currency-rounding
+  input:
+  - role: user
+    content: Compress invoice delta while preserving cents and no-rounding instruction.
+  expected_output: "{\n  \"scenario\": \"currency-rounding\",\n  \"caveman_baseline\": \"Invoice: `$1,234.56 -> $1,199.99`,\
+    \ delta `-$34.57`; do not round.\",\n  \"required_terms\": [\n    \"$1,234.56\",\n    \"$1,199.99\",\n    \"-$34.57\"\
+    ,\n    \"no round\"\n  ],\n  \"exact_terms\": [\n    \"$1,234.56->$1,199.99\",\n    \"-$34.57\"\n  ],\n  \"ordered_terms\"\
+    : [],\n  \"forbidden_terms\": [\n    \"$1,200\",\n    \"$35\"\n  ],\n  \"required_patterns\": [],\n  \"forbidden_patterns\"\
+    : [],\n  \"max_token_ratio\": 1,\n  \"min_fact_score\": 1,\n  \"caveman_tokens\": 17\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: scientific-notation
+  input:
+  - role: user
+    content: Preserve scientific notation and comparison direction.
+  expected_output: "{\n  \"scenario\": \"scientific-notation\",\n  \"caveman_baseline\": \"Epsilon `1.0e-7` < tolerance `2.5e-6`.\"\
+    ,\n  \"required_terms\": [\n    \"1.0e-7\",\n    \"2.5e-6\"\n  ],\n  \"exact_terms\": [],\n  \"ordered_terms\": [],\n\
+    \  \"forbidden_terms\": [],\n  \"required_patterns\": [\n    \"1\\\\.0e-7\\\\s+<\\\\s+2\\\\.5e-6\"\n  ],\n  \"forbidden_patterns\"\
+    : [],\n  \"max_token_ratio\": 1,\n  \"min_fact_score\": 1,\n  \"caveman_tokens\": 10\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: ipv6-cidr
+  input:
+  - role: user
+    content: Compress firewall rule while preserving IPv6 CIDR.
+  expected_output: "{\n  \"scenario\": \"ipv6-cidr\",\n  \"caveman_baseline\": \"Firewall: allow HTTPS to `2001:db8:85a3::/64`;\
+    \ deny other egress.\",\n  \"required_terms\": [\n    \"HTTPS\",\n    \"2001:db8:85a3::/64\",\n    \"deny\"\n  ],\n  \"\
+    exact_terms\": [\n    \"2001:db8:85a3::/64\"\n  ],\n  \"ordered_terms\": [],\n  \"forbidden_terms\": [],\n  \"required_patterns\"\
+    : [],\n  \"forbidden_patterns\": [\n    \"\\\\b\\\\d+\\\\.\\\\d+\\\\.\\\\d+\\\\.\\\\d+\\\\b\"\n  ],\n  \"max_token_ratio\"\
+    : 1,\n  \"min_fact_score\": 1,\n  \"caveman_tokens\": 17\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: dns-cname-chain
+  input:
+  - role: user
+    content: Summarize DNS routing while preserving CNAME chain order.
+  expected_output: "{\n  \"scenario\": \"dns-cname-chain\",\n  \"caveman_baseline\": \"DNS: `app.example.com -> edge.example.net\
+    \ -> cdn.vendor.net`; no A on app host.\",\n  \"required_terms\": [\n    \"app.example.com\",\n    \"edge.example.net\"\
+    ,\n    \"cdn.vendor.net\",\n    \"no app A\"\n  ],\n  \"exact_terms\": [],\n  \"ordered_terms\": [\n    \"app.example.com\"\
+    ,\n    \"edge.example.net\",\n    \"cdn.vendor.net\"\n  ],\n  \"forbidden_terms\": [],\n  \"required_patterns\": [],\n\
+    \  \"forbidden_patterns\": [],\n  \"max_token_ratio\": 1,\n  \"min_fact_score\": 1,\n  \"caveman_tokens\": 20\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: http-retry-after
+  input:
+  - role: user
+    content: Compress HTTP throttle result while preserving status and Retry-After seconds.
+  expected_output: "{\n  \"scenario\": \"http-retry-after\",\n  \"caveman_baseline\": \"HTTP 429 `Too Many Requests`; `Retry-After:\
+    \ 120`; retry after 120s.\",\n  \"required_terms\": [\n    \"HTTP 429\",\n    \"Retry-After: 120\",\n    \"120s\"\n  ],\n\
+    \  \"exact_terms\": [\n    \"Retry-After: 120\"\n  ],\n  \"ordered_terms\": [],\n  \"forbidden_terms\": [],\n  \"required_patterns\"\
+    : [],\n  \"forbidden_patterns\": [],\n  \"max_token_ratio\": 1,\n  \"min_fact_score\": 1,\n  \"caveman_tokens\": 17\n\
+    }\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: grpc-status
+  input:
+  - role: user
+    content: Summarize gRPC failure while preserving canonical code and retryability.
+  expected_output: "{\n  \"scenario\": \"grpc-status\",\n  \"caveman_baseline\": \"gRPC `14 UNAVAILABLE`; retryable with exponential\
+    \ backoff.\",\n  \"required_terms\": [\n    \"gRPC\",\n    \"14\",\n    \"UNAVAILABLE\",\n    \"retry\"\n  ],\n  \"exact_terms\"\
+    : [],\n  \"ordered_terms\": [],\n  \"forbidden_terms\": [],\n  \"required_patterns\": [\n    \"gRPC\\\\s+14/UNAVAILABLE\"\
+    \n  ],\n  \"forbidden_patterns\": [],\n  \"max_token_ratio\": 1,\n  \"min_fact_score\": 1,\n  \"caveman_tokens\": 15\n\
+    }\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: otel-trace-span
+  input:
+  - role: user
+    content: Compress trace handoff while preserving trace id and span id.
+  expected_output: "{\n  \"scenario\": \"otel-trace-span\",\n  \"caveman_baseline\": \"Investigate trace `4bf92f3577b34da6a3ce929d0e0e4736`,\
+    \ span `00f067aa0ba902b7`.\",\n  \"required_terms\": [\n    \"4bf92f3577b34da6a3ce929d0e0e4736\",\n    \"00f067aa0ba902b7\"\
+    \n  ],\n  \"exact_terms\": [],\n  \"ordered_terms\": [],\n  \"forbidden_terms\": [],\n  \"required_patterns\": [\n   \
+    \ \"trace\\\\s+[0-9a-f]{32}\",\n    \"span\\\\s+[0-9a-f]{16}\"\n  ],\n  \"forbidden_patterns\": [],\n  \"max_token_ratio\"\
+    : 1,\n  \"min_fact_score\": 1,\n  \"caveman_tokens\": 20\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: jwt-redaction
+  input:
+  - role: user
+    content: Compress JWT leak report while preserving header algorithm and redacting payload.
+  expected_output: "{\n  \"scenario\": \"jwt-redaction\",\n  \"caveman_baseline\": \"JWT leak: alg `RS256`; token `[REDACTED]`;\
+    \ do not echo token.\",\n  \"required_terms\": [\n    \"JWT leak\",\n    \"RS256\",\n    \"[REDACTED]\"\n  ],\n  \"exact_terms\"\
+    : [],\n  \"ordered_terms\": [],\n  \"forbidden_terms\": [],\n  \"required_patterns\": [],\n  \"forbidden_patterns\": [\n\
+    \    \"eyJ[a-zA-Z0-9_-]+\\\\.[a-zA-Z0-9_-]+\\\\.signature\"\n  ],\n  \"max_token_ratio\": 1,\n  \"min_fact_score\": 1,\n\
+    \  \"caveman_tokens\": 16\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: email-redaction
+  input:
+  - role: user
+    content: Summarize user report while redacting email local-part.
+  expected_output: "{\n  \"scenario\": \"email-redaction\",\n  \"caveman_baseline\": \"Affected account: `[REDACTED]@example.com`;\
+    \ full local-part redacted.\",\n  \"required_terms\": [\n    \"[REDACTED]@example.com\"\n  ],\n  \"exact_terms\": [\n\
+    \    \"[REDACTED]@example.com\"\n  ],\n  \"ordered_terms\": [],\n  \"forbidden_terms\": [\n    \"jane.doe+trial@example.com\"\
+    \n  ],\n  \"required_patterns\": [],\n  \"forbidden_patterns\": [],\n  \"max_token_ratio\": 1,\n  \"min_fact_score\":\
+    \ 1,\n  \"caveman_tokens\": 18\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: csv-quoted-comma
+  input:
+  - role: user
+    content: Compress CSV row while preserving a quoted comma field.
+  expected_output: "{\n  \"scenario\": \"csv-quoted-comma\",\n  \"caveman_baseline\": \"CSV row: `7,\\\"Smith, Ada\\\",\\\"\
+    needs review\\\"`; keep quoted comma.\",\n  \"required_terms\": [\n    \"7\",\n    \"Smith, Ada\",\n    \"needs review\"\
+    \n  ],\n  \"exact_terms\": [\n    \"7,\\\"Smith, Ada\\\",\\\"needs review\\\"\"\n  ],\n  \"ordered_terms\": [],\n  \"\
+    forbidden_terms\": [],\n  \"required_patterns\": [],\n  \"forbidden_patterns\": [],\n  \"max_token_ratio\": 1,\n  \"min_fact_score\"\
+    : 1,\n  \"caveman_tokens\": 15\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: glob-negation
+  input:
+  - role: user
+    content: Summarize file filter while preserving include and negation globs.
+  expected_output: "{\n  \"scenario\": \"glob-negation\",\n  \"caveman_baseline\": \"Search `**/*.test.ts`; exclude `**/*.snap.ts`.\"\
+    ,\n  \"required_terms\": [\n    \"**/*.test.ts\",\n    \"**/*.snap.ts\"\n  ],\n  \"exact_terms\": [\n    \"**/*.test.ts\"\
+    ,\n    \"**/*.snap.ts\"\n  ],\n  \"ordered_terms\": [],\n  \"forbidden_terms\": [],\n  \"required_patterns\": [],\n  \"\
+    forbidden_patterns\": [],\n  \"max_token_ratio\": 1,\n  \"min_fact_score\": 1,\n  \"caveman_tokens\": 12\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: regex-literal
+  input:
+  - role: user
+    content: Compress regex guidance while preserving anchors and groups.
+  expected_output: "{\n  \"scenario\": \"regex-literal\",\n  \"caveman_baseline\": \"Use regex `^(feat|fix|test)\\\\([^)]+\\\
+    \\): .+$`; keep anchors.\",\n  \"required_terms\": [\n    \"^(feat|fix|test)\\\\([^)]+\\\\): .+$\",\n    \"anchors\"\n\
+    \  ],\n  \"exact_terms\": [\n    \"^(feat|fix|test)\\\\([^)]+\\\\): .+$\"\n  ],\n  \"ordered_terms\": [],\n  \"forbidden_terms\"\
+    : [],\n  \"required_patterns\": [],\n  \"forbidden_patterns\": [],\n  \"max_token_ratio\": 1,\n  \"min_fact_score\": 1,\n\
+    \  \"caveman_tokens\": 15\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: feature-flag-rollout
+  input:
+  - role: user
+    content: Compress rollout status while preserving flag, cohort, and percentage.
+  expected_output: "{\n  \"scenario\": \"feature-flag-rollout\",\n  \"caveman_baseline\": \"Flag `agentv_caveman_bench`: beta-users\
+    \ 25%, everyone else off.\",\n  \"required_terms\": [\n    \"agentv_caveman_bench\",\n    \"beta-users\",\n    \"25%\"\
+    ,\n    \"off\"\n  ],\n  \"exact_terms\": [],\n  \"ordered_terms\": [],\n  \"forbidden_terms\": [],\n  \"required_patterns\"\
+    : [],\n  \"forbidden_patterns\": [],\n  \"max_token_ratio\": 1,\n  \"min_fact_score\": 1,\n  \"caveman_tokens\": 16\n\
+    }\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: ab-cohort
+  input:
+  - role: user
+    content: Report A/B split without swapping control and variant.
+  expected_output: "{\n  \"scenario\": \"ab-cohort\",\n  \"caveman_baseline\": \"`exp-17`: control 60%, variant B 40%.\",\n\
+    \  \"required_terms\": [\n    \"exp-17\",\n    \"control=60%\",\n    \"B=40%\"\n  ],\n  \"exact_terms\": [],\n  \"ordered_terms\"\
+    : [],\n  \"forbidden_terms\": [],\n  \"required_patterns\": [\n    \"control=60%,\\\\s+B=40%\"\n  ],\n  \"forbidden_patterns\"\
+    : [],\n  \"max_token_ratio\": 1,\n  \"min_fact_score\": 1,\n  \"caveman_tokens\": 10\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: matrix-shape
+  input:
+  - role: user
+    content: Summarize tensor shape and dtype without transposing dimensions.
+  expected_output: "{\n  \"scenario\": \"matrix-shape\",\n  \"caveman_baseline\": \"Tensor: shape `[2, 3, 768]`, dtype `float16`;\
+    \ do not transpose.\",\n  \"required_terms\": [\n    \"[2,3,768]\",\n    \"float16\",\n    \"no transpose\"\n  ],\n  \"\
+    exact_terms\": [],\n  \"ordered_terms\": [],\n  \"forbidden_terms\": [\n    \"[3,2,768]\"\n  ],\n  \"required_patterns\"\
+    : [],\n  \"forbidden_patterns\": [],\n  \"max_token_ratio\": 1,\n  \"min_fact_score\": 1,\n  \"caveman_tokens\": 16\n\
+    }\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: unit-preservation
+  input:
+  - role: user
+    content: Compress measurement while preserving original units and no-conversion rule.
+  expected_output: "{\n  \"scenario\": \"unit-preservation\",\n  \"caveman_baseline\": \"Memory budget `512 MiB`; do not convert\
+    \ to MB.\",\n  \"required_terms\": [\n    \"512 MiB\",\n    \"no MB conversion\"\n  ],\n  \"exact_terms\": [],\n  \"ordered_terms\"\
+    : [],\n  \"forbidden_terms\": [\n    \"536 MB\",\n    \"512 MB\"\n  ],\n  \"required_patterns\": [],\n  \"forbidden_patterns\"\
+    : [],\n  \"max_token_ratio\": 1,\n  \"min_fact_score\": 1,\n  \"caveman_tokens\": 12\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: crlf-warning
+  input:
+  - role: user
+    content: Summarize Git line-ending warning without changing LF/CRLF terms.
+  expected_output: "{\n  \"scenario\": \"crlf-warning\",\n  \"caveman_baseline\": \"Git warning: `LF will be replaced by CRLF`;\
+    \ file `docs/evals.md`.\",\n  \"required_terms\": [\n    \"LF will be replaced by CRLF\",\n    \"docs/evals.md\"\n  ],\n\
+    \  \"exact_terms\": [\n    \"LF will be replaced by CRLF\"\n  ],\n  \"ordered_terms\": [],\n  \"forbidden_terms\": [],\n\
+    \  \"required_patterns\": [],\n  \"forbidden_patterns\": [],\n  \"max_token_ratio\": 1,\n  \"min_fact_score\": 1,\n  \"\
+    caveman_tokens\": 17\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: escaped-json-string
+  input:
+  - role: user
+    content: Compress JSON string note while preserving escaped newline.
+  expected_output: "{\n  \"scenario\": \"escaped-json-string\",\n  \"caveman_baseline\": \"JSON `message`: `\\\"line1\\\\\
+    nline2\\\"`; keep literal `\\\\n`, no real newline.\",\n  \"required_terms\": [\n    \"message\",\n    \"line1\\\\nline2\"\
+    ,\n    \"`\\\\n`\"\n  ],\n  \"exact_terms\": [\n    \"line1\\\\nline2\"\n  ],\n  \"ordered_terms\": [],\n  \"forbidden_terms\"\
+    : [],\n  \"required_patterns\": [],\n  \"forbidden_patterns\": [],\n  \"max_token_ratio\": 1,\n  \"min_fact_score\": 1,\n\
+    \  \"caveman_tokens\": 18\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: xml-attribute
+  input:
+  - role: user
+    content: Compress XML note while preserving namespace attribute.
+  expected_output: "{\n  \"scenario\": \"xml-attribute\",\n  \"caveman_baseline\": \"Keep XML `<x:tool id=\\\"detok\\\" enabled=\\\
+    \"true\\\" />`; preserve `x:` and `enabled`.\",\n  \"required_terms\": [\n    \"<x:tool id=\\\"detok\\\" enabled=\\\"\
+    true\\\" />\",\n    \"x:\"\n  ],\n  \"exact_terms\": [\n    \"<x:tool id=\\\"detok\\\" enabled=\\\"true\\\" />\"\n  ],\n\
+    \  \"ordered_terms\": [],\n  \"forbidden_terms\": [],\n  \"required_patterns\": [],\n  \"forbidden_patterns\": [],\n \
+    \ \"max_token_ratio\": 1,\n  \"min_fact_score\": 1,\n  \"caveman_tokens\": 20\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: docker-digest
+  input:
+  - role: user
+    content: Summarize image pin while preserving digest.
+  expected_output: "{\n  \"scenario\": \"docker-digest\",\n  \"caveman_baseline\": \"Deploy `ghcr.io/acme/utk@sha256:abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcd`;\
+    \ no `latest`.\",\n  \"required_terms\": [\n    \"ghcr.io/acme/utk@sha256:abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcd\"\
+    ,\n    \"no latest\"\n  ],\n  \"exact_terms\": [\n    \"ghcr.io/acme/utk@sha256:abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcd\"\
+    \n  ],\n  \"ordered_terms\": [],\n  \"forbidden_terms\": [],\n  \"required_patterns\": [],\n  \"forbidden_patterns\":\
+    \ [],\n  \"max_token_ratio\": 1,\n  \"min_fact_score\": 1,\n  \"caveman_tokens\": 28\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: k8s-resource-limit
+  input:
+  - role: user
+    content: Compress Kubernetes limits without swapping requests and limits.
+  expected_output: "{\n  \"scenario\": \"k8s-resource-limit\",\n  \"caveman_baseline\": \"K8s worker: `requests.cpu=250m`;\
+    \ `limits.memory=512Mi`.\",\n  \"required_terms\": [\n    \"req.cpu=250m\",\n    \"limit.mem=512Mi\"\n  ],\n  \"exact_terms\"\
+    : [],\n  \"ordered_terms\": [],\n  \"forbidden_terms\": [],\n  \"required_patterns\": [\n    \"req\\\\.cpu=250m;\\\\s+limit\\\
+    \\.mem=512Mi\"\n  ],\n  \"forbidden_patterns\": [],\n  \"max_token_ratio\": 1,\n  \"min_fact_score\": 1,\n  \"caveman_tokens\"\
+    : 14\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: s3-uri
+  input:
+  - role: user
+    content: Compress artifact location while preserving S3 URI and region.
+  expected_output: "{\n  \"scenario\": \"s3-uri\",\n  \"caveman_baseline\": \"Artifact: `s3://utk-evals/prod/reports/caveman.json`,\
+    \ region `us-east-2`.\",\n  \"required_terms\": [\n    \"s3://utk-evals/prod/reports/caveman.json\",\n    \"us-east-2\"\
+    \n  ],\n  \"exact_terms\": [\n    \"s3://utk-evals/prod/reports/caveman.json\"\n  ],\n  \"ordered_terms\": [],\n  \"forbidden_terms\"\
+    : [],\n  \"required_patterns\": [],\n  \"forbidden_patterns\": [],\n  \"max_token_ratio\": 1,\n  \"min_fact_score\": 1,\n\
+    \  \"caveman_tokens\": 19\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: azure-resource-id
+  input:
+  - role: user
+    content: Summarize Azure resource without truncating resource id.
+  expected_output: "{\n  \"scenario\": \"azure-resource-id\",\n  \"caveman_baseline\": \"Azure resource: `/subscriptions/0000/resourceGroups/rg-utk/providers/Microsoft.CognitiveServices/accounts/aoai-prod`.\"\
+    ,\n  \"required_terms\": [\n    \"/subscriptions/0000/resourceGroups/rg-utk/providers/Microsoft.CognitiveServices/accounts/aoai-prod\"\
+    \n  ],\n  \"exact_terms\": [\n    \"/subscriptions/0000/resourceGroups/rg-utk/providers/Microsoft.CognitiveServices/accounts/aoai-prod\"\
+    \n  ],\n  \"ordered_terms\": [],\n  \"forbidden_terms\": [],\n  \"required_patterns\": [],\n  \"forbidden_patterns\":\
+    \ [],\n  \"max_token_ratio\": 1,\n  \"min_fact_score\": 1,\n  \"caveman_tokens\": 30\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: git-refspec
+  input:
+  - role: user
+    content: Compress push instruction while preserving refspec.
+  expected_output: "{\n  \"scenario\": \"git-refspec\",\n  \"caveman_baseline\": \"Push: `git push origin HEAD:refs/heads/codex/caveman-bench-edge-cases`.\"\
+    ,\n  \"required_terms\": [\n    \"git push origin HEAD:refs/heads/codex/caveman-bench-edge-cases\"\n  ],\n  \"exact_terms\"\
+    : [\n    \"HEAD:refs/heads/codex/caveman-bench-edge-cases\"\n  ],\n  \"ordered_terms\": [],\n  \"forbidden_terms\": [],\n\
+    \  \"required_patterns\": [],\n  \"forbidden_patterns\": [],\n  \"max_token_ratio\": 1,\n  \"min_fact_score\": 1,\n  \"\
+    caveman_tokens\": 18\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: scoped-package
+  input:
+  - role: user
+    content: Compress workspace command while preserving scoped package.
+  expected_output: "{\n  \"scenario\": \"scoped-package\",\n  \"caveman_baseline\": \"Run `npm test --workspace tokenmaxbench\
+    \ evals`.\",\n  \"required_terms\": [\n    \"npm test\",\n    \"tokenmaxbench evals\"\n  ],\n  \"exact_terms\": [\n  \
+    \  \"tokenmaxbench evals\"\n  ],\n  \"ordered_terms\": [],\n  \"forbidden_terms\": [],\n  \"required_patterns\": [],\n\
+    \  \"forbidden_patterns\": [],\n  \"max_token_ratio\": 1,\n  \"min_fact_score\": 1,\n  \"caveman_tokens\": 10\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: npm-audit-count
+  input:
+  - role: user
+    content: Summarize npm audit result without hiding severity.
+  expected_output: "{\n  \"scenario\": \"npm-audit-count\",\n  \"caveman_baseline\": \"`npm audit`: 1 moderate, 0 critical\
+    \ vulnerabilities.\",\n  \"required_terms\": [\n    \"npm audit\",\n    \"moderate=1\",\n    \"critical=0\"\n  ],\n  \"\
+    exact_terms\": [],\n  \"ordered_terms\": [],\n  \"forbidden_terms\": [\n    \"0 vulnerabilities\",\n    \"clean audit\"\
+    \n  ],\n  \"required_patterns\": [],\n  \"forbidden_patterns\": [],\n  \"max_token_ratio\": 1,\n  \"min_fact_score\":\
+    \ 1,\n  \"caveman_tokens\": 13\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: node-options-memory
+  input:
+  - role: user
+    content: Compress Node memory flag while preserving exact option.
+  expected_output: "{\n  \"scenario\": \"node-options-memory\",\n  \"caveman_baseline\": \"Set `NODE_OPTIONS=--max-old-space-size=8192`;\
+    \ run `verify:agent-browser`.\",\n  \"required_terms\": [\n    \"NODE_OPTIONS=--max-old-space-size=8192\",\n    \"verify:agent-browser\"\
+    \n  ],\n  \"exact_terms\": [\n    \"NODE_OPTIONS=--max-old-space-size=8192\"\n  ],\n  \"ordered_terms\": [],\n  \"forbidden_terms\"\
+    : [],\n  \"required_patterns\": [],\n  \"forbidden_patterns\": [],\n  \"max_token_ratio\": 1,\n  \"min_fact_score\": 1,\n\
+    \  \"caveman_tokens\": 19\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: tri-state-null
+  input:
+  - role: user
+    content: Summarize tri-state field semantics without collapsing null and false.
+  expected_output: "{\n  \"scenario\": \"tri-state-null\",\n  \"caveman_baseline\": \"`consent`: true=allowed, false=denied,\
+    \ null=unknown. Do not collapse null to false.\",\n  \"required_terms\": [\n    \"true allowed\",\n    \"false denied\"\
+    ,\n    \"null unknown\"\n  ],\n  \"exact_terms\": [],\n  \"ordered_terms\": [],\n  \"forbidden_terms\": [\n    \"null\
+    \ to false\",\n    \"boolean only\"\n  ],\n  \"required_patterns\": [],\n  \"forbidden_patterns\": [],\n  \"max_token_ratio\"\
+    : 1,\n  \"min_fact_score\": 1,\n  \"caveman_tokens\": 21\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: graphql-selection
+  input:
+  - role: user
+    content: Compress GraphQL query note while preserving selected fields.
+  expected_output: "{\n  \"scenario\": \"graphql-selection\",\n  \"caveman_baseline\": \"GraphQL select `repository { name\
+    \ owner { login } defaultBranchRef { name } }`.\",\n  \"required_terms\": [\n    \"repository\",\n    \"owner { login\
+    \ }\",\n    \"defaultBranchRef { name }\"\n  ],\n  \"exact_terms\": [\n    \"repository { name owner { login } defaultBranchRef\
+    \ { name } }\"\n  ],\n  \"ordered_terms\": [],\n  \"forbidden_terms\": [],\n  \"required_patterns\": [],\n  \"forbidden_patterns\"\
+    : [],\n  \"max_token_ratio\": 1,\n  \"min_fact_score\": 1,\n  \"caveman_tokens\": 20\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: protobuf-field-number
+  input:
+  - role: user
+    content: Summarize proto change while preserving field number and reserved range.
+  expected_output: "{\n  \"scenario\": \"protobuf-field-number\",\n  \"caveman_baseline\": \"Proto: add `string benchmark_id\
+    \ = 7`; reserve `8 to 12`; do not reuse 9.\",\n  \"required_terms\": [\n    \"string benchmark_id = 7\",\n    \"reserve\
+    \ 8-12\",\n    \"no 9 reuse\"\n  ],\n  \"exact_terms\": [\n    \"string benchmark_id = 7\"\n  ],\n  \"ordered_terms\"\
+    : [],\n  \"forbidden_terms\": [],\n  \"required_patterns\": [],\n  \"forbidden_patterns\": [],\n  \"max_token_ratio\"\
+    : 1,\n  \"min_fact_score\": 1,\n  \"caveman_tokens\": 18\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: cron-expression
+  input:
+  - role: user
+    content: Compress schedule while preserving cron expression and timezone.
+  expected_output: "{\n  \"scenario\": \"cron-expression\",\n  \"caveman_baseline\": \"Cron `15 4 * * 1-5` UTC; weekdays 04:15.\"\
+    ,\n  \"required_terms\": [\n    \"15 4 * * 1-5\",\n    \"UTC\",\n    \"weekdays 04:15\"\n  ],\n  \"exact_terms\": [],\n\
+    \  \"ordered_terms\": [],\n  \"forbidden_terms\": [],\n  \"required_patterns\": [\n    \"15\\\\s+4\\\\s+\\\\*\\\\s+\\\\\
+    *\\\\s+1-5\"\n  ],\n  \"forbidden_patterns\": [],\n  \"max_token_ratio\": 1,\n  \"min_fact_score\": 1,\n  \"caveman_tokens\"\
+    : 10\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: rate-limit-window
+  input:
+  - role: user
+    content: Summarize quota rule with limit and rolling window.
+  expected_output: "{\n  \"scenario\": \"rate-limit-window\",\n  \"caveman_baseline\": \"Rate limit: 600 requests / 5-minute\
+    \ rolling window / user.\",\n  \"required_terms\": [\n    \"600 req\",\n    \"5 min rolling\",\n    \"user\"\n  ],\n \
+    \ \"exact_terms\": [],\n  \"ordered_terms\": [],\n  \"forbidden_terms\": [],\n  \"required_patterns\": [],\n  \"forbidden_patterns\"\
+    : [],\n  \"max_token_ratio\": 1,\n  \"min_fact_score\": 1,\n  \"caveman_tokens\": 15\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: cache-control
+  input:
+  - role: user
+    content: Compress cache policy while preserving directives.
+  expected_output: "{\n  \"scenario\": \"cache-control\",\n  \"caveman_baseline\": \"`Cache-Control: public, max-age=31536000,\
+    \ immutable` for versioned assets.\",\n  \"required_terms\": [\n    \"Cache-Control\",\n    \"public\",\n    \"max-age=31536000\"\
+    ,\n    \"immutable\"\n  ],\n  \"exact_terms\": [\n    \"Cache-Control: public, max-age=31536000, immutable\"\n  ],\n \
+    \ \"ordered_terms\": [],\n  \"forbidden_terms\": [],\n  \"required_patterns\": [],\n  \"forbidden_patterns\": [],\n  \"\
+    max_token_ratio\": 1,\n  \"min_fact_score\": 1,\n  \"caveman_tokens\": 19\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: csp-directive
+  input:
+  - role: user
+    content: Summarize CSP update without weakening source list.
+  expected_output: "{\n  \"scenario\": \"csp-directive\",\n  \"caveman_baseline\": \"CSP: `script-src 'self' https://cdn.example.com`;\
+    \ no `unsafe-inline`.\",\n  \"required_terms\": [\n    \"script-src 'self' https://cdn.example.com\",\n    \"no unsafe-inline\"\
+    \n  ],\n  \"exact_terms\": [\n    \"script-src 'self' https://cdn.example.com\"\n  ],\n  \"ordered_terms\": [],\n  \"\
+    forbidden_terms\": [\n    \"'unsafe-inline' allowed\"\n  ],\n  \"required_patterns\": [],\n  \"forbidden_patterns\": [],\n\
+    \  \"max_token_ratio\": 1,\n  \"min_fact_score\": 1,\n  \"caveman_tokens\": 18\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: html-entity
+  input:
+  - role: user
+    content: Compress HTML note while preserving escaped entity.
+  expected_output: "{\n  \"scenario\": \"html-entity\",\n  \"caveman_baseline\": \"Render `&lt;Admin&gt;`, not raw `<Admin>`.\"\
+    ,\n  \"required_terms\": [\n    \"&lt;Admin&gt;\",\n    \"not raw tag\"\n  ],\n  \"exact_terms\": [\n    \"&lt;Admin&gt;\"\
+    \n  ],\n  \"ordered_terms\": [],\n  \"forbidden_terms\": [\n    \"<Admin>\"\n  ],\n  \"required_patterns\": [],\n  \"\
+    forbidden_patterns\": [],\n  \"max_token_ratio\": 1,\n  \"min_fact_score\": 1,\n  \"caveman_tokens\": 11\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: markdown-table-alignment
+  input:
+  - role: user
+    content: Summarize table alignment without losing colon markers.
+  expected_output: "{\n  \"scenario\": \"markdown-table-alignment\",\n  \"caveman_baseline\": \"Markdown align row: `| ---\
+    \ | ---: | :---: |`.\",\n  \"required_terms\": [\n    \"| --- | ---: | :---: |\"\n  ],\n  \"exact_terms\": [\n    \"|\
+    \ --- | ---: | :---: |\"\n  ],\n  \"ordered_terms\": [],\n  \"forbidden_terms\": [],\n  \"required_patterns\": [],\n \
+    \ \"forbidden_patterns\": [],\n  \"max_token_ratio\": 1,\n  \"min_fact_score\": 1,\n  \"caveman_tokens\": 12\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: algebra-boundary
+  input:
+  - role: user
+    content: Compress boundary condition while preserving inclusive/exclusive operators.
+  expected_output: "{\n  \"scenario\": \"algebra-boundary\",\n  \"caveman_baseline\": \"Valid range: `0 <= score < 1`; includes\
+    \ 0, excludes 1.\",\n  \"required_terms\": [\n    \"0 <= score < 1\",\n    \"0 in\",\n    \"1 out\"\n  ],\n  \"exact_terms\"\
+    : [\n    \"0 <= score < 1\"\n  ],\n  \"ordered_terms\": [],\n  \"forbidden_terms\": [],\n  \"required_patterns\": [],\n\
+    \  \"forbidden_patterns\": [],\n  \"max_token_ratio\": 1,\n  \"min_fact_score\": 1,\n  \"caveman_tokens\": 14\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: git-diff-hunk
+  input:
+  - role: user
+    content: Compress diff note while preserving plus/minus line meanings.
+  expected_output: "{\n  \"scenario\": \"git-diff-hunk\",\n  \"caveman_baseline\": \"Diff: remove `- oldRoute();`; add `+\
+    \ newRoute();`; signs matter.\",\n  \"required_terms\": [\n    \"- oldRoute();\",\n    \"+ newRoute();\",\n    \"removed\"\
+    ,\n    \"added\"\n  ],\n  \"exact_terms\": [],\n  \"ordered_terms\": [\n    \"- oldRoute();\",\n    \"+ newRoute();\"\n\
+    \  ],\n  \"forbidden_terms\": [],\n  \"required_patterns\": [],\n  \"forbidden_patterns\": [],\n  \"max_token_ratio\"\
+    : 1,\n  \"min_fact_score\": 1,\n  \"caveman_tokens\": 16\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: binary-size
+  input:
+  - role: user
+    content: Summarize binary size with IEC unit and byte count.
+  expected_output: "{\n  \"scenario\": \"binary-size\",\n  \"caveman_baseline\": \"Bundle: 1.5 MiB = 1,572,864 bytes; not\
+    \ 1.5 MB.\",\n  \"required_terms\": [\n    \"1.5 MiB\",\n    \"1,572,864 bytes\",\n    \"not MB\"\n  ],\n  \"exact_terms\"\
+    : [],\n  \"ordered_terms\": [],\n  \"forbidden_terms\": [\n    \"1.5 MB\"\n  ],\n  \"required_patterns\": [],\n  \"forbidden_patterns\"\
+    : [],\n  \"max_token_ratio\": 1,\n  \"min_fact_score\": 1,\n  \"caveman_tokens\": 12\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0
+- id: mimetype-charset
+  input:
+  - role: user
+    content: Compress content-type guidance while preserving MIME type and charset.
+  expected_output: "{\n  \"scenario\": \"mimetype-charset\",\n  \"caveman_baseline\": \"Content-Type `application/json; charset=utf-8`;\
+    \ no `text/plain` fallback.\",\n  \"required_terms\": [\n    \"application/json; charset=utf-8\",\n    \"no text/plain\
+    \ fallback\"\n  ],\n  \"exact_terms\": [\n    \"application/json; charset=utf-8\"\n  ],\n  \"ordered_terms\": [],\n  \"\
+    forbidden_terms\": [\n    \"charset=ascii\",\n    \"application/javascript\"\n  ],\n  \"required_patterns\": [],\n  \"\
+    forbidden_patterns\": [],\n  \"max_token_ratio\": 1,\n  \"min_fact_score\": 1,\n  \"caveman_tokens\": 19\n}\n"
+  assertions:
+  - name: output-compaction-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/output/compaction/gradeCompaction.ts
+    weight: 3.0

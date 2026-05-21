@@ -1,0 +1,272 @@
+name: evals-tools-call-multi-turn-accuracy-tools-call-multi-turn-accuracy
+version: '1.0'
+description: Multi-turn tool accuracy cases for retained tool/history context.
+metadata:
+  layered_evaluator_surface: true
+assertions:
+- name: tool-history-quality
+  type: llm-grader
+  target: grader-openai
+  weight: 1.0
+  rubrics:
+  - id: context-retention
+    outcome: Final answer preserves relevant prior-turn and prior-tool context.
+    weight: 2
+    required: true
+  - id: resolution
+    outcome: Final answer resolves the latest user request using the retained context.
+    weight: 1
+    required: true
+- name: tool-history-budget
+  type: execution-metrics
+  max_tool_calls: 30
+  max_tokens: 12000
+  max_duration_ms: 240000
+  weight: 0.25
+tests:
+- id: streaming-compression-chunks
+  input:
+  - role: user
+    content: Compress streaming chunks while retaining done marker and final content.
+  expected_output: "{\n  \"scenario\": \"streaming-compression-chunks\",\n  \"tool_id\": \"compresr.stream.chunks\",\n  \"\
+    required_facts\": [\n    {\n      \"kind\": \"literal\",\n      \"value\": \"failed shard windows-node20\"\n    },\n \
+    \   {\n      \"kind\": \"literal\",\n      \"value\": \"done=true\"\n    }\n  ],\n  \"compresr_baseline_text\": \"Compresr\
+    \ stream emits compressed chunks, including failed shard windows-node20 and final done marker.\",\n  \"compresr_baseline_tokens\"\
+    : 26,\n  \"min_fact_score\": 1,\n  \"install_config\": {\n    \"pythonPackage\": \"compresr\",\n    \"installedVersion\"\
+    : \"2.5.1\",\n    \"installCommand\": \"python -m pip install --user compresr==2.5.1\",\n    \"apiKeyEnvVar\": \"COMPRESR_API_KEY\"\
+    ,\n    \"liveApiMode\": \"disabled-without-api-key\",\n    \"baselineMode\": \"deterministic-installed-sdk-model-baselines\"\
+    ,\n    \"models\": [\n      \"espresso_v1\",\n      \"latte_v1\",\n      \"agentic_history_lingua\",\n      \"agentic_tool_output_gemfilter\"\
+    ,\n      \"agentic_tool_output_lingua\",\n      \"agentic_tool_discovery_sat\"\n    ],\n    \"endpoints\": [\n      \"\
+    /api/compress/question-agnostic/\",\n      \"/api/compress/question-specific/\",\n      \"/api/compress/question-agnostic/batch\"\
+    ,\n      \"/api/compress/question-specific/batch\"\n    ]\n  }\n}\n"
+  assertions:
+  - name: tool-multi-turn-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_multi_turn_accuracy/gradeToolMultiTurnAccuracy.ts
+    weight: 2.0
+- id: history-compaction-threshold
+  input:
+  - role: user
+    content: Compact long history only near threshold while preserving reserve budget.
+  expected_output: "{\n  \"scenario\": \"history-compaction-threshold\",\n  \"tool_id\": \"compresr.history.threshold\",\n\
+    \  \"required_facts\": [\n    {\n      \"kind\": \"literal\",\n      \"value\": \"threshold=75%\"\n    },\n    {\n   \
+    \   \"kind\": \"literal\",\n      \"value\": \"reserve_output_tokens=4096\"\n    }\n  ],\n  \"compresr_baseline_text\"\
+    : \"Compresr history compaction triggers at 75 percent context, keeps 4096 output-token reserve, stores history summary\
+    \ reference.\",\n  \"compresr_baseline_tokens\": 32,\n  \"min_fact_score\": 1,\n  \"install_config\": {\n    \"pythonPackage\"\
+    : \"compresr\",\n    \"installedVersion\": \"2.5.1\",\n    \"installCommand\": \"python -m pip install --user compresr==2.5.1\"\
+    ,\n    \"apiKeyEnvVar\": \"COMPRESR_API_KEY\",\n    \"liveApiMode\": \"disabled-without-api-key\",\n    \"baselineMode\"\
+    : \"deterministic-installed-sdk-model-baselines\",\n    \"models\": [\n      \"espresso_v1\",\n      \"latte_v1\",\n \
+    \     \"agentic_history_lingua\",\n      \"agentic_tool_output_gemfilter\",\n      \"agentic_tool_output_lingua\",\n \
+    \     \"agentic_tool_discovery_sat\"\n    ],\n    \"endpoints\": [\n      \"/api/compress/question-agnostic/\",\n    \
+    \  \"/api/compress/question-specific/\",\n      \"/api/compress/question-agnostic/batch\",\n      \"/api/compress/question-specific/batch\"\
+    \n    ]\n  }\n}\n"
+  assertions:
+  - name: tool-multi-turn-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_multi_turn_accuracy/gradeToolMultiTurnAccuracy.ts
+    weight: 2.0
+- id: expand-context-shadow-ref
+  input:
+  - role: user
+    content: Recover full compressed content through an expand-context reference.
+  expected_output: "{\n  \"scenario\": \"expand-context-shadow-ref\",\n  \"tool_id\": \"compresr.expand.context\",\n  \"required_facts\"\
+    : [\n    {\n      \"kind\": \"literal\",\n      \"value\": \"[REF:ctx_9ab3]\"\n    },\n    {\n      \"kind\": \"literal\"\
+    ,\n      \"value\": \"raw-output-77\"\n    }\n  ],\n  \"compresr_baseline_text\": \"Compresr compressed block uses [REF:ctx_9ab3]\
+    \ and expand_context to recover raw-output-77.\",\n  \"compresr_baseline_tokens\": 23,\n  \"min_fact_score\": 1,\n  \"\
+    install_config\": {\n    \"pythonPackage\": \"compresr\",\n    \"installedVersion\": \"2.5.1\",\n    \"installCommand\"\
+    : \"python -m pip install --user compresr==2.5.1\",\n    \"apiKeyEnvVar\": \"COMPRESR_API_KEY\",\n    \"liveApiMode\"\
+    : \"disabled-without-api-key\",\n    \"baselineMode\": \"deterministic-installed-sdk-model-baselines\",\n    \"models\"\
+    : [\n      \"espresso_v1\",\n      \"latte_v1\",\n      \"agentic_history_lingua\",\n      \"agentic_tool_output_gemfilter\"\
+    ,\n      \"agentic_tool_output_lingua\",\n      \"agentic_tool_discovery_sat\"\n    ],\n    \"endpoints\": [\n      \"\
+    /api/compress/question-agnostic/\",\n      \"/api/compress/question-specific/\",\n      \"/api/compress/question-agnostic/batch\"\
+    ,\n      \"/api/compress/question-specific/batch\"\n    ]\n  }\n}\n"
+  assertions:
+  - name: tool-multi-turn-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_multi_turn_accuracy/gradeToolMultiTurnAccuracy.ts
+    weight: 2.0
+- id: tool-output-cache-hit
+  input:
+  - role: user
+    content: Reuse compressed output for identical content hash.
+  expected_output: "{\n  \"scenario\": \"tool-output-cache-hit\",\n  \"tool_id\": \"compresr.cache.hit\",\n  \"required_facts\"\
+    : [\n    {\n      \"kind\": \"jsonPath\",\n      \"path\": \"$.cache_status\",\n      \"expected\": \"hit\"\n    },\n\
+    \    {\n      \"kind\": \"jsonPath\",\n      \"path\": \"$.compressed_ref\",\n      \"expected\": \"cmp-cache-77\"\n \
+    \   }\n  ],\n  \"compresr_baseline_text\": \"Compresr cache hit for sha256 abc123 reuses compressed ref cmp-cache-77.\"\
+    ,\n  \"compresr_baseline_tokens\": 18,\n  \"min_fact_score\": 1,\n  \"install_config\": {\n    \"pythonPackage\": \"compresr\"\
+    ,\n    \"installedVersion\": \"2.5.1\",\n    \"installCommand\": \"python -m pip install --user compresr==2.5.1\",\n \
+    \   \"apiKeyEnvVar\": \"COMPRESR_API_KEY\",\n    \"liveApiMode\": \"disabled-without-api-key\",\n    \"baselineMode\"\
+    : \"deterministic-installed-sdk-model-baselines\",\n    \"models\": [\n      \"espresso_v1\",\n      \"latte_v1\",\n \
+    \     \"agentic_history_lingua\",\n      \"agentic_tool_output_gemfilter\",\n      \"agentic_tool_output_lingua\",\n \
+    \     \"agentic_tool_discovery_sat\"\n    ],\n    \"endpoints\": [\n      \"/api/compress/question-agnostic/\",\n    \
+    \  \"/api/compress/question-specific/\",\n      \"/api/compress/question-agnostic/batch\",\n      \"/api/compress/question-specific/batch\"\
+    \n    ]\n  }\n}\n"
+  assertions:
+  - name: tool-multi-turn-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_multi_turn_accuracy/gradeToolMultiTurnAccuracy.ts
+    weight: 2.0
+- id: shadow-ttl-expiry
+  input:
+  - role: user
+    content: Handle expired shadow reference while preserving durable artifact path.
+  expected_output: "{\n  \"scenario\": \"shadow-ttl-expiry\",\n  \"tool_id\": \"compresr.shadow.ttl\",\n  \"required_facts\"\
+    : [\n    {\n      \"kind\": \"jsonPath\",\n      \"path\": \"$.ttl_state\",\n      \"expected\": \"expired\"\n    },\n\
+    \    {\n      \"kind\": \"jsonPath\",\n      \"path\": \"$.fallback\",\n      \"expected\": \".utk/tools/shell.rg/observations/run-1/output.raw.txt\"\
+    \n    }\n  ],\n  \"compresr_baseline_text\": \"Compresr shadow ref ctx_expired can expire; UTK fallback artifact path\
+    \ remains durable.\",\n  \"compresr_baseline_tokens\": 22,\n  \"min_fact_score\": 1,\n  \"install_config\": {\n    \"\
+    pythonPackage\": \"compresr\",\n    \"installedVersion\": \"2.5.1\",\n    \"installCommand\": \"python -m pip install\
+    \ --user compresr==2.5.1\",\n    \"apiKeyEnvVar\": \"COMPRESR_API_KEY\",\n    \"liveApiMode\": \"disabled-without-api-key\"\
+    ,\n    \"baselineMode\": \"deterministic-installed-sdk-model-baselines\",\n    \"models\": [\n      \"espresso_v1\",\n\
+    \      \"latte_v1\",\n      \"agentic_history_lingua\",\n      \"agentic_tool_output_gemfilter\",\n      \"agentic_tool_output_lingua\"\
+    ,\n      \"agentic_tool_discovery_sat\"\n    ],\n    \"endpoints\": [\n      \"/api/compress/question-agnostic/\",\n \
+    \     \"/api/compress/question-specific/\",\n      \"/api/compress/question-agnostic/batch\",\n      \"/api/compress/question-specific/batch\"\
+    \n    ]\n  }\n}\n"
+  assertions:
+  - name: tool-multi-turn-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_multi_turn_accuracy/gradeToolMultiTurnAccuracy.ts
+    weight: 2.0
+- id: prompt-history-store
+  input:
+  - role: user
+    content: Compress prompt history index while preserving session and model filters.
+  expected_output: "{\n  \"scenario\": \"prompt-history-store\",\n  \"tool_id\": \"compresr.prompt.history\",\n  \"required_facts\"\
+    : [\n    {\n      \"kind\": \"jsonPath\",\n      \"path\": \"$.fts\",\n      \"expected\": true\n    },\n    {\n     \
+    \ \"kind\": \"jsonPath\",\n      \"path\": \"$.session\",\n      \"expected\": \"sess-123\"\n    }\n  ],\n  \"compresr_baseline_text\"\
+    : \"Compresr prompt history store supports FTS and filters by session, model, provider.\",\n  \"compresr_baseline_tokens\"\
+    : 21,\n  \"min_fact_score\": 1,\n  \"install_config\": {\n    \"pythonPackage\": \"compresr\",\n    \"installedVersion\"\
+    : \"2.5.1\",\n    \"installCommand\": \"python -m pip install --user compresr==2.5.1\",\n    \"apiKeyEnvVar\": \"COMPRESR_API_KEY\"\
+    ,\n    \"liveApiMode\": \"disabled-without-api-key\",\n    \"baselineMode\": \"deterministic-installed-sdk-model-baselines\"\
+    ,\n    \"models\": [\n      \"espresso_v1\",\n      \"latte_v1\",\n      \"agentic_history_lingua\",\n      \"agentic_tool_output_gemfilter\"\
+    ,\n      \"agentic_tool_output_lingua\",\n      \"agentic_tool_discovery_sat\"\n    ],\n    \"endpoints\": [\n      \"\
+    /api/compress/question-agnostic/\",\n      \"/api/compress/question-specific/\",\n      \"/api/compress/question-agnostic/batch\"\
+    ,\n      \"/api/compress/question-specific/batch\"\n    ]\n  }\n}\n"
+  assertions:
+  - name: tool-multi-turn-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_multi_turn_accuracy/gradeToolMultiTurnAccuracy.ts
+    weight: 2.0
+- id: task-subagent-output
+  input:
+  - role: user
+    content: Compress subagent task output while retaining task id and final blocker.
+  expected_output: "{\n  \"scenario\": \"task-subagent-output\",\n  \"tool_id\": \"compresr.task.output\",\n  \"required_facts\"\
+    : [\n    {\n      \"kind\": \"literal\",\n      \"value\": \"task_id=worker-1\"\n    },\n    {\n      \"kind\": \"literal\"\
+    ,\n      \"value\": \"missing COMPRESR_API_KEY\"\n    }\n  ],\n  \"compresr_baseline_text\": \"Compresr task output compression\
+    \ keeps worker-1 task id and missing COMPRESR_API_KEY blocker.\",\n  \"compresr_baseline_tokens\": 24,\n  \"min_fact_score\"\
+    : 1,\n  \"install_config\": {\n    \"pythonPackage\": \"compresr\",\n    \"installedVersion\": \"2.5.1\",\n    \"installCommand\"\
+    : \"python -m pip install --user compresr==2.5.1\",\n    \"apiKeyEnvVar\": \"COMPRESR_API_KEY\",\n    \"liveApiMode\"\
+    : \"disabled-without-api-key\",\n    \"baselineMode\": \"deterministic-installed-sdk-model-baselines\",\n    \"models\"\
+    : [\n      \"espresso_v1\",\n      \"latte_v1\",\n      \"agentic_history_lingua\",\n      \"agentic_tool_output_gemfilter\"\
+    ,\n      \"agentic_tool_output_lingua\",\n      \"agentic_tool_discovery_sat\"\n    ],\n    \"endpoints\": [\n      \"\
+    /api/compress/question-agnostic/\",\n      \"/api/compress/question-specific/\",\n      \"/api/compress/question-agnostic/batch\"\
+    ,\n      \"/api/compress/question-specific/batch\"\n    ]\n  }\n}\n"
+  assertions:
+  - name: tool-multi-turn-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_multi_turn_accuracy/gradeToolMultiTurnAccuracy.ts
+    weight: 2.0
+- id: local-first-sensitive-code
+  input:
+  - role: user
+    content: Avoid sending sensitive source code to hosted compressor.
+  expected_output: "{\n  \"scenario\": \"local-first-sensitive-code\",\n  \"tool_id\": \"compresr.privacy.code\",\n  \"required_facts\"\
+    : [\n    {\n      \"kind\": \"jsonPath\",\n      \"path\": \"$.remote_send\",\n      \"expected\": false\n    },\n   \
+    \ {\n      \"kind\": \"jsonPath\",\n      \"path\": \"$.reason\",\n      \"expected\": \"sensitive-code\"\n    }\n  ],\n\
+    \  \"compresr_baseline_text\": \"Compresr hosted compression would require remote send; UTK marks sensitive-code remote_send=false.\"\
+    ,\n  \"compresr_baseline_tokens\": 25,\n  \"min_fact_score\": 1,\n  \"install_config\": {\n    \"pythonPackage\": \"compresr\"\
+    ,\n    \"installedVersion\": \"2.5.1\",\n    \"installCommand\": \"python -m pip install --user compresr==2.5.1\",\n \
+    \   \"apiKeyEnvVar\": \"COMPRESR_API_KEY\",\n    \"liveApiMode\": \"disabled-without-api-key\",\n    \"baselineMode\"\
+    : \"deterministic-installed-sdk-model-baselines\",\n    \"models\": [\n      \"espresso_v1\",\n      \"latte_v1\",\n \
+    \     \"agentic_history_lingua\",\n      \"agentic_tool_output_gemfilter\",\n      \"agentic_tool_output_lingua\",\n \
+    \     \"agentic_tool_discovery_sat\"\n    ],\n    \"endpoints\": [\n      \"/api/compress/question-agnostic/\",\n    \
+    \  \"/api/compress/question-specific/\",\n      \"/api/compress/question-agnostic/batch\",\n      \"/api/compress/question-specific/batch\"\
+    \n    ]\n  }\n}\n"
+  assertions:
+  - name: tool-multi-turn-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_multi_turn_accuracy/gradeToolMultiTurnAccuracy.ts
+    weight: 2.0
+- id: kv-cache-preservation
+  input:
+  - role: user
+    content: Preserve stable compressed output across turns for KV-cache reuse.
+  expected_output: "{\n  \"scenario\": \"kv-cache-preservation\",\n  \"tool_id\": \"compresr.kv-cache\",\n  \"required_facts\"\
+    : [\n    {\n      \"kind\": \"jsonPath\",\n      \"path\": \"$.compact_fingerprint\",\n      \"expected\": \"sha256:stable-777\"\
+    \n    },\n    {\n      \"kind\": \"jsonPath\",\n      \"path\": \"$.cache_preserved\",\n      \"expected\": true\n   \
+    \ }\n  ],\n  \"compresr_baseline_text\": \"Compresr preserves KV cache by reusing stable compressed output fingerprint\
+    \ sha256 stable-777 across turns.\",\n  \"compresr_baseline_tokens\": 27,\n  \"min_fact_score\": 1,\n  \"install_config\"\
+    : {\n    \"pythonPackage\": \"compresr\",\n    \"installedVersion\": \"2.5.1\",\n    \"installCommand\": \"python -m pip\
+    \ install --user compresr==2.5.1\",\n    \"apiKeyEnvVar\": \"COMPRESR_API_KEY\",\n    \"liveApiMode\": \"disabled-without-api-key\"\
+    ,\n    \"baselineMode\": \"deterministic-installed-sdk-model-baselines\",\n    \"models\": [\n      \"espresso_v1\",\n\
+    \      \"latte_v1\",\n      \"agentic_history_lingua\",\n      \"agentic_tool_output_gemfilter\",\n      \"agentic_tool_output_lingua\"\
+    ,\n      \"agentic_tool_discovery_sat\"\n    ],\n    \"endpoints\": [\n      \"/api/compress/question-agnostic/\",\n \
+    \     \"/api/compress/question-specific/\",\n      \"/api/compress/question-agnostic/batch\",\n      \"/api/compress/question-specific/batch\"\
+    \n    ]\n  }\n}\n"
+  assertions:
+  - name: tool-multi-turn-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_multi_turn_accuracy/gradeToolMultiTurnAccuracy.ts
+    weight: 2.0
+- id: agentic-history-lingua
+  input:
+  - role: user
+    content: Compare agentic_history_lingua history compression with UTK blocks.
+  expected_output: "{\n  \"scenario\": \"agentic-history-lingua\",\n  \"tool_id\": \"compresr.agentic.history\",\n  \"required_facts\"\
+    : [\n    {\n      \"kind\": \"jsonPath\",\n      \"path\": \"$.model\",\n      \"expected\": \"agentic_history_lingua\"\
+    \n    },\n    {\n      \"kind\": \"jsonPath\",\n      \"path\": \"$.current_user_untouched\",\n      \"expected\": true\n\
+    \    }\n  ],\n  \"compresr_baseline_text\": \"Compresr agentic_history_lingua creates history block hist-block-42 and\
+    \ keeps current user untouched.\",\n  \"compresr_baseline_tokens\": 26,\n  \"min_fact_score\": 1,\n  \"install_config\"\
+    : {\n    \"pythonPackage\": \"compresr\",\n    \"installedVersion\": \"2.5.1\",\n    \"installCommand\": \"python -m pip\
+    \ install --user compresr==2.5.1\",\n    \"apiKeyEnvVar\": \"COMPRESR_API_KEY\",\n    \"liveApiMode\": \"disabled-without-api-key\"\
+    ,\n    \"baselineMode\": \"deterministic-installed-sdk-model-baselines\",\n    \"models\": [\n      \"espresso_v1\",\n\
+    \      \"latte_v1\",\n      \"agentic_history_lingua\",\n      \"agentic_tool_output_gemfilter\",\n      \"agentic_tool_output_lingua\"\
+    ,\n      \"agentic_tool_discovery_sat\"\n    ],\n    \"endpoints\": [\n      \"/api/compress/question-agnostic/\",\n \
+    \     \"/api/compress/question-specific/\",\n      \"/api/compress/question-agnostic/batch\",\n      \"/api/compress/question-specific/batch\"\
+    \n    ]\n  }\n}\n"
+  assertions:
+  - name: tool-multi-turn-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/tools/call_multi_turn_accuracy/gradeToolMultiTurnAccuracy.ts
+    weight: 2.0

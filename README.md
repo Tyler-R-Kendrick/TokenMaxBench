@@ -1,46 +1,38 @@
 # TokenMaxBench
 
-Framework-neutral benchmarks for measuring token-reduction agent setups.
+AgentV-only benchmarks for measuring token-reduction agent setups.
 
-Active benchmark workloads live in `evals/benchmarks.ts`. The harness runs those workloads and records scorecards instead of asserting that one framework beats another.
+This repo is only a benchmark project. It has no root `src/`, no root `test/`, and no reusable library API. Testcases live in `evals/`; custom grader and evaluator implementations live in `evaluators/`.
 
 ## Providers
 
-- `mock`: deterministic dry-run provider for tests.
-- `github-copilot`: uses `@github/copilot-sdk` with ambient GitHub Copilot CLI auth.
-- `codex`: uses `@openai/codex-sdk` with ambient Codex auth.
-
-Default setup is empty for all real providers: no skills, no tools, no agent instructions, no env overrides, no working-directory fixtures.
-
-Agent-eval library surface matches the UTK eval stack: `autoevals` for scoring and `@toon-format/toon` for TOON artifact compatibility.
+- `grader-openai`: AgentV LLM grader target using `OPENAI_API_KEY`.
+- `github-copilot`: AgentV Copilot target backed by `@github/copilot-sdk` and ambient Copilot auth.
+- `codex`: AgentV Codex target backed by `@openai/codex-sdk` and ambient Codex auth.
 
 ## Commands
 
 ```bash
 npm install
+npm run validate
 npm run typecheck
-npm test
-npm run build
+npm run bench
 ```
 
-Dry run:
+`npm run bench` requires `OPENAI_API_KEY` for AgentV's grader target plus ambient auth for the Copilot and Codex SDKs.
 
-```bash
-npm run bench -- --provider mock
-```
-
-Benchmark runs write canonical latest results to `results/latest/scorecard.json` and `results/latest/scorecard.md` by default.
-
-Live smoke runs are opt-in:
-
-```bash
-$env:TOKENMAXBENCH_LIVE_GITHUB_COPILOT='1'; npm test -- --run test/live.test.ts
-$env:TOKENMAXBENCH_LIVE_CODEX='1'; npm test -- --run test/live.test.ts
-```
-
-Live benchmark:
+Provider-specific runs:
 
 ```bash
 npm run bench:github-copilot
 npm run bench:codex
 ```
+
+Full benchmark results write to `results/latest/`. Provider-specific runs write under `results/github-copilot/latest/` and `results/codex/latest/`.
+
+## Eval Layout
+
+- `evals/**/*.EVAL.yaml`: AgentV suites and cases.
+- `evaluators/**/*.ts`: custom AgentV code graders and shared evaluator helpers.
+- `.agentv/targets.yaml`: AgentV target definitions.
+- `agentv.config.ts`: AgentV execution and output defaults.

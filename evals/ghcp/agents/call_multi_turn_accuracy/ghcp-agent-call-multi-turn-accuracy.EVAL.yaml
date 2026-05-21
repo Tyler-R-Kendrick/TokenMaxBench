@@ -1,0 +1,43 @@
+name: evals-ghcp-agents-call-multi-turn-accuracy-ghcp-agent-call-multi-turn-accuracy
+version: '1.0'
+description: GitHub Copilot agent multi-turn accuracy cases using composite evaluation.
+metadata:
+  layered_evaluator_surface: true
+tests:
+- id: ghcp-agent-multi-turn-pr-context
+  input:
+  - role: user
+    content: 'We are reviewing PR #42 on branch codex/evaluator-taxonomy.'
+  - role: assistant
+    content: 'Context noted: PR #42, branch codex/evaluator-taxonomy.'
+  - role: user
+    content: Summarize the agent action required and preserve PR and branch identifiers.
+  expected_output: '{"scenario":"ghcp-agent-multi-turn-pr-context","required_terms":["PR #42","codex/evaluator-taxonomy"],"rtk_baseline_tokens":35,"max_token_ratio":1}'
+  assertions:
+  - name: ghcp-multi-turn-deterministic
+    type: code-grader
+    command:
+    - node
+    - --import
+    - tsx
+    - evaluators/ghcp/agents/call_multi_turn_accuracy/gradeGhcpAgentMultiTurnAccuracy.ts
+    weight: 2
+  - name: ghcp-agent-flow
+    type: composite
+    aggregator:
+      type: threshold
+      threshold: 0.8
+    assertions:
+    - name: ghcp-context-retention
+      type: llm-grader
+      target: grader-openai
+      rubrics:
+      - id: context-retention
+        outcome: Response preserves PR and branch identifiers from previous turns.
+        required: true
+        weight: 2
+    - name: ghcp-turn-budget
+      type: execution-metrics
+      max_tool_calls: 10
+      max_tokens: 6000
+      max_duration_ms: 120000
