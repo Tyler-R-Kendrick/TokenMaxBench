@@ -1,0 +1,756 @@
+{
+  "generatedBy": "grounding-baseline",
+  "targets": [
+    {
+      "id": "mock",
+      "sdk": "mock",
+      "agentvTarget": "mock"
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "compaction-input",
+      "technique_family": "compaction",
+      "technique_surface": "input",
+      "input": {
+        "prompt": "Read long project instructions, package constraints, and benchmark notes.\nSummarize implementation constraints for future input compaction.\nPreserve exact file paths, exported symbol names, token budget numbers, and unresolved questions.\nDo not apply compaction. Capture full clean-run behavior for baseline grounding."
+      },
+      "technique_mode": "none"
+    },
+    {
+      "id": "compaction-output",
+      "technique_family": "compaction",
+      "technique_surface": "output",
+      "input": {
+        "prompt": "Given verbose tool output below, produce maintainer-facing summary with exact failing command, failing package, and next fix.\nDo not compress output through any benchmark technique. Capture normal SDK response shape.",
+        "tool_output": "> npm run validate\nFAIL evals/grounding.EVAL.yaml\nExpected first-party grounding fixtures, found legacy comparison import.\nExpected targets [mock], found legacy SDK targets."
+      },
+      "technique_mode": "none"
+    },
+    {
+      "id": "selection-tool",
+      "technique_family": "selection",
+      "technique_surface": "tool",
+      "input": {
+        "prompt": "Inspect README.md and package.json, then report package name and available benchmark scripts.",
+        "tool_definitions": [
+          {
+            "name": "read_file",
+            "description": "Read UTF-8 file contents from workspace.",
+            "input_schema": {
+              "type": "object",
+              "required": [
+                "path"
+              ],
+              "properties": {
+                "path": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          {
+            "name": "run_tests",
+            "description": "Run package test command and return exit code plus output.",
+            "input_schema": {
+              "type": "object",
+              "required": [
+                "command"
+              ],
+              "properties": {
+                "command": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "technique_mode": "none"
+    },
+    {
+      "id": "selection-skill",
+      "technique_family": "selection",
+      "technique_surface": "skill",
+      "input": {
+        "prompt": "Create narrow TDD plan for adding grounding fixtures without touching unrelated eval suites.",
+        "skills": [
+          {
+            "name": "benchmark",
+            "description": "Use repo conventions for AgentV evals, benchmark results, package scripts, and generated data.",
+            "body": "Prefer AgentV-native fixtures, strict baseline data shape, root data artifacts, and generated docs committed only after passing validation."
+          },
+          {
+            "name": "detoks",
+            "description": "Design token-saving skill split with compact entrypoint and references.",
+            "body": "Use only when optimizing skill instruction payloads or measuring token savings."
+          }
+        ]
+      },
+      "technique_mode": "none"
+    },
+    {
+      "id": "selection-agent",
+      "technique_family": "selection",
+      "technique_surface": "agent",
+      "input": {
+        "prompt": "Choose best specialist agent to update eval fixtures and explain why, then provide next implementation step.",
+        "agents": [
+          {
+            "name": "benchmark-maintainer",
+            "description": "Maintains AgentV benchmark suites and persisted baseline data.",
+            "instructions": "Inspect evals, target config, generated data, and result conventions before editing."
+          },
+          {
+            "name": "docs-maintainer",
+            "description": "Maintains README and explanatory benchmark docs.",
+            "instructions": "Prefer docs-only changes unless benchmark data contract already exists."
+          }
+        ]
+      },
+      "technique_mode": "none"
+    },
+    {
+      "id": "selection-handoff",
+      "technique_family": "selection",
+      "technique_surface": "handoff",
+      "input": {
+        "prompt": "Plan fixture rewrite, hand off implementation, then hand off review when code and generated artifacts exist.",
+        "agents": [
+          {
+            "name": "planner",
+            "description": "Breaks benchmark work into ordered implementation steps.",
+            "instructions": "Stop after acceptance criteria and file list are clear."
+          },
+          {
+            "name": "implementer",
+            "description": "Edits AgentV fixtures, scripts, and generated artifacts.",
+            "instructions": "Run focused validation after edits."
+          },
+          {
+            "name": "reviewer",
+            "description": "Checks diff for external suite references, target drift, and missing artifact regeneration.",
+            "instructions": "Return only blocking findings."
+          }
+        ],
+        "handoffs": [
+          {
+            "from": "planner",
+            "to": "implementer",
+            "condition": "Implementation file list is known."
+          },
+          {
+            "from": "implementer",
+            "to": "reviewer",
+            "condition": "Validation and data generation complete."
+          }
+        ]
+      },
+      "technique_mode": "none"
+    },
+    {
+      "id": "rewriting-skill",
+      "technique_family": "rewriting",
+      "technique_surface": "skill",
+      "input": {
+        "prompt": "Rewrite verbose skill instructions into a concise skill while preserving triggers, workflow, and constraints.",
+        "skills": [
+          {
+            "name": "fixture-author",
+            "description": "Verbose skill source for baseline rewrite capture.",
+            "body": "When asked to author grounding data, first identify the technique family and surface. Then create one fixture that exercises target behavior without applying optimization techniques. Keep scenario input explicit enough that future AgentV graders can compare tool calls, skill selection, agent routing, handoffs, and prompt rewrites."
+          }
+        ]
+      },
+      "technique_mode": "none"
+    },
+    {
+      "id": "rewriting-agent",
+      "technique_family": "rewriting",
+      "technique_surface": "agent",
+      "input": {
+        "prompt": "Rewrite agent instructions for a baseline-capture worker. Preserve scope and fail-fast behavior.",
+        "agents": [
+          {
+            "name": "baseline-capture-worker",
+            "description": "Runs first-party grounding scenarios.",
+            "instructions": "Execute each scenario through configured SDK target. Capture transcript, selected tools, selected skills, selected agents, handoffs, artifacts, and errors. Do not score accuracy or compare compaction techniques. Fail run if target cannot execute."
+          }
+        ]
+      },
+      "technique_mode": "none"
+    },
+    {
+      "id": "rewriting-system-prompt",
+      "technique_family": "rewriting",
+      "technique_surface": "system-prompt",
+      "input": {
+        "prompt": "Rewrite system prompt for lower ambiguity while preserving all behavioral constraints.",
+        "system_prompt": "You are baseline runner.\nUse technique_mode none only.\nCapture SDK behavior for compaction, selection, and rewriting surfaces.\nDo not grade, optimize, compact, or compare external tools.\nReturn structured baseline data suitable for future AgentV evaluators."
+      },
+      "technique_mode": "none"
+    }
+  ],
+  "runs": [
+    {
+      "target": "mock",
+      "scenario_id": "compaction-input",
+      "technique_family": "compaction",
+      "technique_surface": "input",
+      "technique_mode": "none",
+      "input": {
+        "prompt": "Read long project instructions, package constraints, and benchmark notes.\nSummarize implementation constraints for future input compaction.\nPreserve exact file paths, exported symbol names, token budget numbers, and unresolved questions.\nDo not apply compaction. Capture full clean-run behavior for baseline grounding."
+      },
+      "sdk_run": {
+        "command": [
+          "agentv",
+          "eval",
+          "evals/",
+          "--target",
+          "mock",
+          "--test-id",
+          "compaction-input",
+          "--json"
+        ],
+        "exit_code": 0,
+        "stdout": "{\"ok\":true,\"target\":\"mock\",\"scenario\":\"compaction-input\",\"technique_family\":\"compaction\",\"technique_surface\":\"input\",\"technique_mode\":\"none\"}",
+        "stderr": "",
+        "duration_ms": 1
+      },
+      "transcript": [
+        {
+          "role": "user",
+          "content": "Read long project instructions, package constraints, and benchmark notes.\nSummarize implementation constraints for future input compaction.\nPreserve exact file paths, exported symbol names, token budget numbers, and unresolved questions.\nDo not apply compaction. Capture full clean-run behavior for baseline grounding."
+        },
+        {
+          "role": "assistant",
+          "content": "baseline mock compaction-input"
+        }
+      ],
+      "tool_calls": [],
+      "selected_skills": [],
+      "selected_agents": [],
+      "handoffs": [],
+      "artifacts": [
+        {
+          "name": "compaction-input.mock.json",
+          "content": "{\"target\":\"mock\",\"scenario_id\":\"compaction-input\",\"technique_family\":\"compaction\",\"technique_surface\":\"input\",\"technique_mode\":\"none\",\"tool_calls\":[],\"selected_skills\":[],\"selected_agents\":[],\"handoffs\":[]}"
+        }
+      ],
+      "errors": []
+    },
+    {
+      "target": "mock",
+      "scenario_id": "compaction-output",
+      "technique_family": "compaction",
+      "technique_surface": "output",
+      "technique_mode": "none",
+      "input": {
+        "prompt": "Given verbose tool output below, produce maintainer-facing summary with exact failing command, failing package, and next fix.\nDo not compress output through any benchmark technique. Capture normal SDK response shape.",
+        "tool_output": "> npm run validate\nFAIL evals/grounding.EVAL.yaml\nExpected first-party grounding fixtures, found legacy comparison import.\nExpected targets [mock], found legacy SDK targets."
+      },
+      "sdk_run": {
+        "command": [
+          "agentv",
+          "eval",
+          "evals/",
+          "--target",
+          "mock",
+          "--test-id",
+          "compaction-output",
+          "--json"
+        ],
+        "exit_code": 0,
+        "stdout": "{\"ok\":true,\"target\":\"mock\",\"scenario\":\"compaction-output\",\"technique_family\":\"compaction\",\"technique_surface\":\"output\",\"technique_mode\":\"none\"}",
+        "stderr": "",
+        "duration_ms": 1
+      },
+      "transcript": [
+        {
+          "role": "user",
+          "content": "Given verbose tool output below, produce maintainer-facing summary with exact failing command, failing package, and next fix.\nDo not compress output through any benchmark technique. Capture normal SDK response shape."
+        },
+        {
+          "role": "assistant",
+          "content": "baseline mock compaction-output"
+        }
+      ],
+      "tool_calls": [],
+      "selected_skills": [],
+      "selected_agents": [],
+      "handoffs": [],
+      "artifacts": [
+        {
+          "name": "compaction-output.mock.json",
+          "content": "{\"target\":\"mock\",\"scenario_id\":\"compaction-output\",\"technique_family\":\"compaction\",\"technique_surface\":\"output\",\"technique_mode\":\"none\",\"tool_calls\":[],\"selected_skills\":[],\"selected_agents\":[],\"handoffs\":[]}"
+        }
+      ],
+      "errors": []
+    },
+    {
+      "target": "mock",
+      "scenario_id": "selection-tool",
+      "technique_family": "selection",
+      "technique_surface": "tool",
+      "technique_mode": "none",
+      "input": {
+        "prompt": "Inspect README.md and package.json, then report package name and available benchmark scripts.",
+        "tool_definitions": [
+          {
+            "name": "read_file",
+            "description": "Read UTF-8 file contents from workspace.",
+            "input_schema": {
+              "type": "object",
+              "required": [
+                "path"
+              ],
+              "properties": {
+                "path": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          {
+            "name": "run_tests",
+            "description": "Run package test command and return exit code plus output.",
+            "input_schema": {
+              "type": "object",
+              "required": [
+                "command"
+              ],
+              "properties": {
+                "command": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "sdk_run": {
+        "command": [
+          "agentv",
+          "eval",
+          "evals/",
+          "--target",
+          "mock",
+          "--test-id",
+          "selection-tool",
+          "--json"
+        ],
+        "exit_code": 0,
+        "stdout": "{\"ok\":true,\"target\":\"mock\",\"scenario\":\"selection-tool\",\"technique_family\":\"selection\",\"technique_surface\":\"tool\",\"technique_mode\":\"none\"}",
+        "stderr": "",
+        "duration_ms": 1
+      },
+      "transcript": [
+        {
+          "role": "user",
+          "content": "Inspect README.md and package.json, then report package name and available benchmark scripts."
+        },
+        {
+          "role": "assistant",
+          "content": "baseline mock selection-tool"
+        }
+      ],
+      "tool_calls": [
+        {
+          "name": "read_file",
+          "args": {
+            "path": "README.md"
+          }
+        },
+        {
+          "name": "read_file",
+          "args": {
+            "path": "package.json"
+          }
+        }
+      ],
+      "selected_skills": [],
+      "selected_agents": [],
+      "handoffs": [],
+      "artifacts": [
+        {
+          "name": "selection-tool.mock.json",
+          "content": "{\"target\":\"mock\",\"scenario_id\":\"selection-tool\",\"technique_family\":\"selection\",\"technique_surface\":\"tool\",\"technique_mode\":\"none\",\"tool_calls\":[{\"name\":\"read_file\",\"args\":{\"path\":\"README.md\"}},{\"name\":\"read_file\",\"args\":{\"path\":\"package.json\"}}],\"selected_skills\":[],\"selected_agents\":[],\"handoffs\":[]}"
+        }
+      ],
+      "errors": []
+    },
+    {
+      "target": "mock",
+      "scenario_id": "selection-skill",
+      "technique_family": "selection",
+      "technique_surface": "skill",
+      "technique_mode": "none",
+      "input": {
+        "prompt": "Create narrow TDD plan for adding grounding fixtures without touching unrelated eval suites.",
+        "skills": [
+          {
+            "name": "benchmark",
+            "description": "Use repo conventions for AgentV evals, benchmark results, package scripts, and generated data.",
+            "body": "Prefer AgentV-native fixtures, strict baseline data shape, root data artifacts, and generated docs committed only after passing validation."
+          },
+          {
+            "name": "detoks",
+            "description": "Design token-saving skill split with compact entrypoint and references.",
+            "body": "Use only when optimizing skill instruction payloads or measuring token savings."
+          }
+        ]
+      },
+      "sdk_run": {
+        "command": [
+          "agentv",
+          "eval",
+          "evals/",
+          "--target",
+          "mock",
+          "--test-id",
+          "selection-skill",
+          "--json"
+        ],
+        "exit_code": 0,
+        "stdout": "{\"ok\":true,\"target\":\"mock\",\"scenario\":\"selection-skill\",\"technique_family\":\"selection\",\"technique_surface\":\"skill\",\"technique_mode\":\"none\"}",
+        "stderr": "",
+        "duration_ms": 1
+      },
+      "transcript": [
+        {
+          "role": "user",
+          "content": "Create narrow TDD plan for adding grounding fixtures without touching unrelated eval suites."
+        },
+        {
+          "role": "assistant",
+          "content": "baseline mock selection-skill"
+        }
+      ],
+      "tool_calls": [],
+      "selected_skills": [
+        "benchmark"
+      ],
+      "selected_agents": [],
+      "handoffs": [],
+      "artifacts": [
+        {
+          "name": "selection-skill.mock.json",
+          "content": "{\"target\":\"mock\",\"scenario_id\":\"selection-skill\",\"technique_family\":\"selection\",\"technique_surface\":\"skill\",\"technique_mode\":\"none\",\"tool_calls\":[],\"selected_skills\":[\"benchmark\"],\"selected_agents\":[],\"handoffs\":[]}"
+        }
+      ],
+      "errors": []
+    },
+    {
+      "target": "mock",
+      "scenario_id": "selection-agent",
+      "technique_family": "selection",
+      "technique_surface": "agent",
+      "technique_mode": "none",
+      "input": {
+        "prompt": "Choose best specialist agent to update eval fixtures and explain why, then provide next implementation step.",
+        "agents": [
+          {
+            "name": "benchmark-maintainer",
+            "description": "Maintains AgentV benchmark suites and persisted baseline data.",
+            "instructions": "Inspect evals, target config, generated data, and result conventions before editing."
+          },
+          {
+            "name": "docs-maintainer",
+            "description": "Maintains README and explanatory benchmark docs.",
+            "instructions": "Prefer docs-only changes unless benchmark data contract already exists."
+          }
+        ]
+      },
+      "sdk_run": {
+        "command": [
+          "agentv",
+          "eval",
+          "evals/",
+          "--target",
+          "mock",
+          "--test-id",
+          "selection-agent",
+          "--json"
+        ],
+        "exit_code": 0,
+        "stdout": "{\"ok\":true,\"target\":\"mock\",\"scenario\":\"selection-agent\",\"technique_family\":\"selection\",\"technique_surface\":\"agent\",\"technique_mode\":\"none\"}",
+        "stderr": "",
+        "duration_ms": 1
+      },
+      "transcript": [
+        {
+          "role": "user",
+          "content": "Choose best specialist agent to update eval fixtures and explain why, then provide next implementation step."
+        },
+        {
+          "role": "assistant",
+          "content": "baseline mock selection-agent"
+        }
+      ],
+      "tool_calls": [],
+      "selected_skills": [],
+      "selected_agents": [
+        "benchmark-maintainer"
+      ],
+      "handoffs": [],
+      "artifacts": [
+        {
+          "name": "selection-agent.mock.json",
+          "content": "{\"target\":\"mock\",\"scenario_id\":\"selection-agent\",\"technique_family\":\"selection\",\"technique_surface\":\"agent\",\"technique_mode\":\"none\",\"tool_calls\":[],\"selected_skills\":[],\"selected_agents\":[\"benchmark-maintainer\"],\"handoffs\":[]}"
+        }
+      ],
+      "errors": []
+    },
+    {
+      "target": "mock",
+      "scenario_id": "selection-handoff",
+      "technique_family": "selection",
+      "technique_surface": "handoff",
+      "technique_mode": "none",
+      "input": {
+        "prompt": "Plan fixture rewrite, hand off implementation, then hand off review when code and generated artifacts exist.",
+        "agents": [
+          {
+            "name": "planner",
+            "description": "Breaks benchmark work into ordered implementation steps.",
+            "instructions": "Stop after acceptance criteria and file list are clear."
+          },
+          {
+            "name": "implementer",
+            "description": "Edits AgentV fixtures, scripts, and generated artifacts.",
+            "instructions": "Run focused validation after edits."
+          },
+          {
+            "name": "reviewer",
+            "description": "Checks diff for external suite references, target drift, and missing artifact regeneration.",
+            "instructions": "Return only blocking findings."
+          }
+        ],
+        "handoffs": [
+          {
+            "from": "planner",
+            "to": "implementer",
+            "condition": "Implementation file list is known."
+          },
+          {
+            "from": "implementer",
+            "to": "reviewer",
+            "condition": "Validation and data generation complete."
+          }
+        ]
+      },
+      "sdk_run": {
+        "command": [
+          "agentv",
+          "eval",
+          "evals/",
+          "--target",
+          "mock",
+          "--test-id",
+          "selection-handoff",
+          "--json"
+        ],
+        "exit_code": 0,
+        "stdout": "{\"ok\":true,\"target\":\"mock\",\"scenario\":\"selection-handoff\",\"technique_family\":\"selection\",\"technique_surface\":\"handoff\",\"technique_mode\":\"none\"}",
+        "stderr": "",
+        "duration_ms": 1
+      },
+      "transcript": [
+        {
+          "role": "user",
+          "content": "Plan fixture rewrite, hand off implementation, then hand off review when code and generated artifacts exist."
+        },
+        {
+          "role": "assistant",
+          "content": "baseline mock selection-handoff"
+        }
+      ],
+      "tool_calls": [],
+      "selected_skills": [],
+      "selected_agents": [
+        "planner",
+        "implementer",
+        "reviewer"
+      ],
+      "handoffs": [
+        {
+          "from": "planner",
+          "to": "implementer",
+          "reason": "Implementation file list is known."
+        },
+        {
+          "from": "implementer",
+          "to": "reviewer",
+          "reason": "Validation and data generation complete."
+        }
+      ],
+      "artifacts": [
+        {
+          "name": "selection-handoff.mock.json",
+          "content": "{\"target\":\"mock\",\"scenario_id\":\"selection-handoff\",\"technique_family\":\"selection\",\"technique_surface\":\"handoff\",\"technique_mode\":\"none\",\"tool_calls\":[],\"selected_skills\":[],\"selected_agents\":[\"planner\",\"implementer\",\"reviewer\"],\"handoffs\":[{\"from\":\"planner\",\"to\":\"implementer\",\"reason\":\"Implementation file list is known.\"},{\"from\":\"implementer\",\"to\":\"reviewer\",\"reason\":\"Validation and data generation complete.\"}]}"
+        }
+      ],
+      "errors": []
+    },
+    {
+      "target": "mock",
+      "scenario_id": "rewriting-skill",
+      "technique_family": "rewriting",
+      "technique_surface": "skill",
+      "technique_mode": "none",
+      "input": {
+        "prompt": "Rewrite verbose skill instructions into a concise skill while preserving triggers, workflow, and constraints.",
+        "skills": [
+          {
+            "name": "fixture-author",
+            "description": "Verbose skill source for baseline rewrite capture.",
+            "body": "When asked to author grounding data, first identify the technique family and surface. Then create one fixture that exercises target behavior without applying optimization techniques. Keep scenario input explicit enough that future AgentV graders can compare tool calls, skill selection, agent routing, handoffs, and prompt rewrites."
+          }
+        ]
+      },
+      "sdk_run": {
+        "command": [
+          "agentv",
+          "eval",
+          "evals/",
+          "--target",
+          "mock",
+          "--test-id",
+          "rewriting-skill",
+          "--json"
+        ],
+        "exit_code": 0,
+        "stdout": "{\"ok\":true,\"target\":\"mock\",\"scenario\":\"rewriting-skill\",\"technique_family\":\"rewriting\",\"technique_surface\":\"skill\",\"technique_mode\":\"none\"}",
+        "stderr": "",
+        "duration_ms": 1
+      },
+      "transcript": [
+        {
+          "role": "user",
+          "content": "Rewrite verbose skill instructions into a concise skill while preserving triggers, workflow, and constraints."
+        },
+        {
+          "role": "assistant",
+          "content": "baseline mock rewriting-skill"
+        }
+      ],
+      "tool_calls": [],
+      "selected_skills": [
+        "fixture-author"
+      ],
+      "selected_agents": [],
+      "handoffs": [],
+      "artifacts": [
+        {
+          "name": "rewriting-skill.mock.json",
+          "content": "{\"target\":\"mock\",\"scenario_id\":\"rewriting-skill\",\"technique_family\":\"rewriting\",\"technique_surface\":\"skill\",\"technique_mode\":\"none\",\"tool_calls\":[],\"selected_skills\":[\"fixture-author\"],\"selected_agents\":[],\"handoffs\":[]}"
+        }
+      ],
+      "errors": []
+    },
+    {
+      "target": "mock",
+      "scenario_id": "rewriting-agent",
+      "technique_family": "rewriting",
+      "technique_surface": "agent",
+      "technique_mode": "none",
+      "input": {
+        "prompt": "Rewrite agent instructions for a baseline-capture worker. Preserve scope and fail-fast behavior.",
+        "agents": [
+          {
+            "name": "baseline-capture-worker",
+            "description": "Runs first-party grounding scenarios.",
+            "instructions": "Execute each scenario through configured SDK target. Capture transcript, selected tools, selected skills, selected agents, handoffs, artifacts, and errors. Do not score accuracy or compare compaction techniques. Fail run if target cannot execute."
+          }
+        ]
+      },
+      "sdk_run": {
+        "command": [
+          "agentv",
+          "eval",
+          "evals/",
+          "--target",
+          "mock",
+          "--test-id",
+          "rewriting-agent",
+          "--json"
+        ],
+        "exit_code": 0,
+        "stdout": "{\"ok\":true,\"target\":\"mock\",\"scenario\":\"rewriting-agent\",\"technique_family\":\"rewriting\",\"technique_surface\":\"agent\",\"technique_mode\":\"none\"}",
+        "stderr": "",
+        "duration_ms": 1
+      },
+      "transcript": [
+        {
+          "role": "user",
+          "content": "Rewrite agent instructions for a baseline-capture worker. Preserve scope and fail-fast behavior."
+        },
+        {
+          "role": "assistant",
+          "content": "baseline mock rewriting-agent"
+        }
+      ],
+      "tool_calls": [],
+      "selected_skills": [],
+      "selected_agents": [
+        "baseline-capture-worker"
+      ],
+      "handoffs": [],
+      "artifacts": [
+        {
+          "name": "rewriting-agent.mock.json",
+          "content": "{\"target\":\"mock\",\"scenario_id\":\"rewriting-agent\",\"technique_family\":\"rewriting\",\"technique_surface\":\"agent\",\"technique_mode\":\"none\",\"tool_calls\":[],\"selected_skills\":[],\"selected_agents\":[\"baseline-capture-worker\"],\"handoffs\":[]}"
+        }
+      ],
+      "errors": []
+    },
+    {
+      "target": "mock",
+      "scenario_id": "rewriting-system-prompt",
+      "technique_family": "rewriting",
+      "technique_surface": "system-prompt",
+      "technique_mode": "none",
+      "input": {
+        "prompt": "Rewrite system prompt for lower ambiguity while preserving all behavioral constraints.",
+        "system_prompt": "You are baseline runner.\nUse technique_mode none only.\nCapture SDK behavior for compaction, selection, and rewriting surfaces.\nDo not grade, optimize, compact, or compare external tools.\nReturn structured baseline data suitable for future AgentV evaluators."
+      },
+      "sdk_run": {
+        "command": [
+          "agentv",
+          "eval",
+          "evals/",
+          "--target",
+          "mock",
+          "--test-id",
+          "rewriting-system-prompt",
+          "--json"
+        ],
+        "exit_code": 0,
+        "stdout": "{\"ok\":true,\"target\":\"mock\",\"scenario\":\"rewriting-system-prompt\",\"technique_family\":\"rewriting\",\"technique_surface\":\"system-prompt\",\"technique_mode\":\"none\"}",
+        "stderr": "",
+        "duration_ms": 1
+      },
+      "transcript": [
+        {
+          "role": "user",
+          "content": "Rewrite system prompt for lower ambiguity while preserving all behavioral constraints."
+        },
+        {
+          "role": "assistant",
+          "content": "baseline mock rewriting-system-prompt"
+        }
+      ],
+      "tool_calls": [],
+      "selected_skills": [],
+      "selected_agents": [],
+      "handoffs": [],
+      "artifacts": [
+        {
+          "name": "rewriting-system-prompt.mock.json",
+          "content": "{\"target\":\"mock\",\"scenario_id\":\"rewriting-system-prompt\",\"technique_family\":\"rewriting\",\"technique_surface\":\"system-prompt\",\"technique_mode\":\"none\",\"tool_calls\":[],\"selected_skills\":[],\"selected_agents\":[],\"handoffs\":[]}"
+        }
+      ],
+      "errors": []
+    }
+  ]
+}

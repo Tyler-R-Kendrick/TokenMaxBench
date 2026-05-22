@@ -7,6 +7,7 @@
   "scripts": {
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "validate": "agentv validate evals/",
+    "bench:grounding:mock": "tsx .agentv/generateGroundingBaseline.ts",
     "bench": "tsx .agentv/checkRealBenchEnv.ts && agentv eval evals/ --target github-copilot --target codex --output results/latest",
     "bench:github-copilot": "tsx .agentv/checkRealBenchEnv.ts && agentv eval evals/ --target github-copilot --output results/github-copilot/latest",
     "bench:codex": "tsx .agentv/checkRealBenchEnv.ts && agentv eval evals/ --target codex --output results/codex/latest"
